@@ -11,6 +11,7 @@ class ConstantBuffer {
 		void uploadDataToResource();
 	public:
 		ConstantBuffer(UINT max, UINT width);
+		~ConstantBuffer();
 
 		UINT getMax() const;
 		UINT getWidth() const;
