@@ -223,6 +223,10 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
+# User files
+*.vcxproj.user
+*.vcxproj.filters
+
 # GhostDoc plugin setting file
 *.GhostDoc.xml
 
