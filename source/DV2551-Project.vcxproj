@@ -136,11 +136,13 @@
   <ItemGroup>
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RootSignature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="PipelineState.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RootSignature.h" />
   </ItemGroup>
