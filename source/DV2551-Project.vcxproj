@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipelineState.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="RootSignature.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Editor.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="PipelineState.h" />
     <ClInclude Include="Renderer.h" />
