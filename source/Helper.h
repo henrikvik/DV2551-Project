@@ -37,6 +37,11 @@
     }\
 }
 
+// Used to toggle a flag off/on easily
+#define TOGGLE_FLAG(dest, flag) (dest & flag) ? dest &= ~flag : dest |= flag
+
+// Used to check if a flag is toggled of or not
+#define CHECK_FLAG(dest, flag) dest & flag
 
 struct G
 {

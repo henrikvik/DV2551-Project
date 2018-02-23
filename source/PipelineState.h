@@ -5,10 +5,11 @@
 #include <D3dx12.h>
 #include <D3Dcompiler.h>
 
+class RootSignature;
 class PipelineState
 {
 public:
-    PipelineState(ID3D12RootSignature* rootSignature);
+    PipelineState(RootSignature* rootSignature);
     ~PipelineState();
 
     ID3D12PipelineState* getPipelineState() { return pipelineState; }

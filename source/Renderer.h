@@ -6,6 +6,8 @@
 class Renderer
 {
 public:
+    friend class Editor;
+
 	Renderer();
 	virtual ~Renderer();
 
