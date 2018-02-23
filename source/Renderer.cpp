@@ -1,11 +1,14 @@
 #include "Renderer.h"
 #include "Helper.h"
+#include "Editor.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
 Renderer::Renderer()
 {
+    editor = new Editor(this);
+
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
@@ -14,6 +17,12 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	SafeRelease(g.device);
+    SafeDelete(editor);
+}
+
+void Renderer::update() 
+{
+    editor->update();
 }
 
 IDXGIAdapter1 * Renderer::findAdapter()

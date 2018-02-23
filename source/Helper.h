@@ -4,6 +4,8 @@
 #
 
 #define SafeRelease(ptr) {if(ptr){ptr->Release();ptr=nullptr;}}
+#define SafeDelete(ptr) {if(ptr){delete ptr;ptr=nullptr;}}
+
 
 #define BreakOnFail(hr)  {\
     if FAILED(hr) \

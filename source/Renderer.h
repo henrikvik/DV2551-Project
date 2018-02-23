@@ -10,8 +10,10 @@ public:
 
 	Renderer();
 	virtual ~Renderer();
+    void update();
 
 private:
+    Editor* editor;
 	IDXGIAdapter1 * findAdapter();
 	IDXGIFactory5 * createFactory();
 

@@ -7,6 +7,13 @@
 
 Editor::Editor(Renderer* _renderer)
 {
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize.x = 1920.0f;
+    io.DisplaySize.y = 1280.0f;
+
+    ImGui_im
+
     renderer = _renderer;
     wnd_flags = 0;
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW);
@@ -23,6 +30,7 @@ void Editor::update()
 
 void Editor::update_main_window()
 {
+    ImGui::NewFrame();
     if (ImGui::Begin("Editor - Main"))
     {
         ImGui::Columns(3, "cols", true);
