@@ -25,6 +25,17 @@
     }\
 }
 
+#define BreakOnFail2(hr, blob)\
+{\
+    if FAILED(hr)\
+    {\
+        OutputDebugString(_bstr_t("\n---==+==---\n"));\
+        OutputDebugString(_bstr_t((char*)blob->GetBufferPointer()));\
+        OutputDebugString(_bstr_t("\n---==+==---\n"));\
+        _CrtDbgBreak();\
+    }\
+}
+
 
 struct G
 {
