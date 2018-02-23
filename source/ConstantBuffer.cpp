@@ -8,6 +8,11 @@ ConstantBuffer::ConstantBuffer(UINT max, UINT width) {
 	uploadDataToResource();
 }
 
+ConstantBuffer::~ConstantBuffer()
+{
+	SafeRelease(resource);
+}
+
 void ConstantBuffer::createConstantBuffer() {
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
