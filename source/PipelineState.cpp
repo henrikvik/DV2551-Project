@@ -1,12 +1,13 @@
 #include "PipelineState.h"
 #include "Helper.h"
+#include <comdef.h>
 
 #pragma comment(lib,"D3DCompiler.lib")
 
 PipelineState::PipelineState(ID3D12RootSignature* rootSignature) 
 {
-    ID3DBlob* vertexShader;
-    ID3DBlob* pixelShader;
+    ID3DBlob* vsShader;
+    ID3DBlob* psShader;
     ID3DBlob* errorMsg;
 
 #if defined(_DEBUG)
@@ -15,13 +16,13 @@ PipelineState::PipelineState(ID3D12RootSignature* rootSignature)
     UINT compileFlags = 0;
 #endif
 
-    D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "VSMain", "vs_5_1", compileFlags, 0, &vertexShader, &errorMsg);
-    D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "PSMain", "ps_5_1", compileFlags, 0, &pixelShader, &errorMsg);
+    BreakOnFail2(D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "VSMain", "vs_5_1", compileFlags, 0, &vsShader, &errorMsg), errorMsg);
+    BreakOnFail2(D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "PSMain", "ps_5_1", compileFlags, 0, &psShader, &errorMsg), errorMsg);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
     pipelineStateDesc.pRootSignature = rootSignature;
-    pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader);
-    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader);
+    pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vsShader);
+    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(psShader);
     pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
