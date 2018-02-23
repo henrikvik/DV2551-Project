@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d12.h>
+#include <crtdbg.h>
 #
 
 #define SafeRelease(ptr) {if(ptr){ptr->Release();ptr=nullptr;}}
