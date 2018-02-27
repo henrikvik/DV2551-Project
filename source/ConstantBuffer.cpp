@@ -3,6 +3,7 @@
 ConstantBuffer::ConstantBuffer(UINT max, UINT width) {
 	this->max = max;
 	this->width = width;
+	resource = nullptr;
 
 	createConstantBuffer();
 	uploadDataToResource();
@@ -25,18 +26,20 @@ void ConstantBuffer::createConstantBuffer() {
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
 
-	g.device->CreateCommittedResource(
+	BreakOnFail(g.device->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&resource)
-	);
+	));
 }
 
 void ConstantBuffer::uploadDataToResource()
 {
+	assert(resource != nullptr);
+
 	float *data = new float[width];
 	for (int i = 0; i < width; i++)
 		data[i] = rand() % max;

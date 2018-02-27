@@ -1,19 +1,26 @@
 #include "Renderer.h"
 #include "Helper.h"
 #include "Editor.h"
+#include "Window.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-Renderer::Renderer()
+Renderer::Renderer(Window* w)
 {
     editor = new Editor(this);
 
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
+	SafeRelease(debug);
+
+#ifdef _DEBUG
+	setupDebug();
+#endif
 
     build_command_resourses();
+    g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
     build_fence();
 }
 
@@ -21,6 +28,10 @@ Renderer::~Renderer()
 {
 	SafeRelease(g.device);
     SafeDelete(editor);
+
+#ifdef _DEBUG
+	SafeRelease(debug);
+#endif
 }
 
 void Renderer::update() 
@@ -33,6 +44,7 @@ void Renderer::render()
     editor->render();
     // execute command list
     // swapchain present
+    g.swap_chain->Present(0, 1);
     next_frame();
     wait_for_gpu();
 }
@@ -81,7 +93,7 @@ void Renderer::next_frame()
     const UINT64 currentFenceValue = g.fence_value;
     BreakOnFail(g.command_queue->Signal(g.fence, currentFenceValue));
 
-//    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
+    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
 
     // sit and wait for the gpu to yell "GO!"
     if (g.fence->GetCompletedValue() < g.fence_value)
@@ -113,6 +125,15 @@ IDXGIFactory5 * Renderer::createFactory()
 	return factory;
 }
 
+void Renderer::setupDebug()
+{
+	debug = nullptr;
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug))))
+	{
+		debug->EnableDebugLayer();
+	}
+}
+
 IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *factory, ID3D12CommandQueue *queue)
 {
 	IDXGISwapChain1 *swapChain;
@@ -122,7 +143,7 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 	swapDesc.Height = window.getWidth();
 	swapDesc.Scaling = DXGI_SCALING_STRETCH;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.BufferCount = ARRAYSIZE(renderTargets);
+	swapDesc.BufferCount = ARRAYSIZE(g.renderTargets);
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -134,4 +155,6 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 
 void Renderer::createRenderTagets(ID3D12CommandQueue * queue)
 {
+    // Tjena Notch, Har du lust å snacka?
+    // HEEEEEEY.
 }
