@@ -2,16 +2,14 @@
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
-#include "Window.h"
 
-#define FRAME_COUNT 2
-
+class Window;
 class Renderer
 {
 public:
     friend class Editor;
 
-	Renderer();
+	Renderer(Window* w);
 	virtual ~Renderer();
     void update();
     void render();
@@ -28,7 +26,6 @@ private:
 
     Editor* editor;
 	ID3D12Debug* debug;
-	ID3D12Resource* renderTargets[FRAME_COUNT];
 
 	IDXGIAdapter1 * findAdapter();
 	IDXGIFactory5 * createFactory();

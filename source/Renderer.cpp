@@ -1,11 +1,12 @@
 #include "Renderer.h"
 #include "Helper.h"
 #include "Editor.h"
+#include "Window.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-Renderer::Renderer()
+Renderer::Renderer(Window* w)
 {
     editor = new Editor(this);
 
@@ -19,6 +20,7 @@ Renderer::Renderer()
 #endif
 
     build_command_resourses();
+    g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
     build_fence();
 }
 
@@ -42,6 +44,7 @@ void Renderer::render()
     editor->render();
     // execute command list
     // swapchain present
+    g.swap_chain->Present(0, 1);
     next_frame();
     wait_for_gpu();
 }
@@ -90,7 +93,7 @@ void Renderer::next_frame()
     const UINT64 currentFenceValue = g.fence_value;
     BreakOnFail(g.command_queue->Signal(g.fence, currentFenceValue));
 
-//    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
+    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
 
     // sit and wait for the gpu to yell "GO!"
     if (g.fence->GetCompletedValue() < g.fence_value)

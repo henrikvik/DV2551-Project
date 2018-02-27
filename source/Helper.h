@@ -1,8 +1,11 @@
 #pragma once
 #include <d3d12.h>
+#include <dxgi1_6.h>
 #include <crtdbg.h>
 #include <comdef.h>
 #
+
+#define FRAME_COUNT 2
 
 #define SafeRelease(ptr) {if(ptr){ptr->Release();ptr=nullptr;}}
 #define SafeDelete(ptr) {if(ptr){delete ptr;ptr=nullptr;}}
