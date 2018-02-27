@@ -20,6 +20,8 @@ public:
     void update_pipe_window();
     void update_root_window();
 
+    void render();
+
 private:
     Renderer*   renderer;
     long        wnd_flags;

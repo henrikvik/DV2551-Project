@@ -11,6 +11,7 @@ public:
 	Renderer();
 	virtual ~Renderer();
     void update();
+    void render();
 
 private:
     Editor* editor;
