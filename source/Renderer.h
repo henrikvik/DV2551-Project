@@ -23,8 +23,10 @@ private:
     void build_command_resourses();
 
     Editor* editor;
+	ID3D12Debug* debug;
 	ID3D12Resource* renderTargets[FRAME_COUNT];
 
 	IDXGIAdapter1 * findAdapter();
 	IDXGIFactory5 * createFactory();
+	void setupDebug();
 };
