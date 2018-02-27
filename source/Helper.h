@@ -48,10 +48,18 @@
 
 struct G
 {
-	ID3D12Device*               device              = nullptr;
-    ID3D12CommandAllocator*     commandAllocator    = nullptr;
-    ID3D12CommandQueue*         commandQueue        = nullptr;
-    ID3D12GraphicsCommandList*  commandList         = nullptr;
+	ID3D12Device*               device = nullptr;
+    
+    // Command Resources
+    ID3D12CommandAllocator*     command_allocator = nullptr;
+    ID3D12CommandQueue*         command_queue = nullptr;
+    ID3D12GraphicsCommandList*  command_list = nullptr;
+
+    // Fence Resources
+    ID3D12Fence*                fence = nullptr;
+    UINT                        fence_index = 0;
+    HANDLE                      fence_event;
+    UINT64                      fence_value = 0;
 };
 
 extern G g;

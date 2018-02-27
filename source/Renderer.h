@@ -16,6 +16,10 @@ public:
 private:
 
     void build_command_resourses();
+    void build_fence();
+
+    void wait_for_gpu();
+    void next_frame();
 
     Editor* editor;
 	IDXGIAdapter1 * findAdapter();

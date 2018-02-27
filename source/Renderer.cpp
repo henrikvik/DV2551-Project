@@ -14,6 +14,7 @@ Renderer::Renderer()
 	SafeRelease(adapter);
 
     build_command_resourses();
+    build_fence();
 }
 
 Renderer::~Renderer()
@@ -30,6 +31,10 @@ void Renderer::update()
 void Renderer::render()
 {
     editor->render();
+    // execute command list
+    // swapchain present
+    next_frame();
+    wait_for_gpu();
 }
 
 void Renderer::build_command_resourses()
@@ -38,14 +43,53 @@ void Renderer::build_command_resourses()
     D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
     commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-    BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.commandQueue)));
+    BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.command_queue)));
 
     // building allocator
-    BreakOnFail(g.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&g.commandAllocator)));
+    BreakOnFail(g.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&g.command_allocator)));
 
     // building command list
-    BreakOnFail(g.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, g.commandAllocator, nullptr, IID_PPV_ARGS(&g.commandList)));
-    BreakOnFail(g.commandList->Close());
+    BreakOnFail(g.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, g.command_allocator, nullptr, IID_PPV_ARGS(&g.command_list)));
+    BreakOnFail(g.command_list->Close());
+}
+
+void Renderer::build_fence()
+{
+    // building the fence
+    BreakOnFail(g.device->CreateFence(g.fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&g.fence)));
+    g.fence_value = 1;
+
+    // building the fence event
+    g.fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (g.fence_event == nullptr)
+        BreakOnFail(0x80004003, __FILE__, __LINE__);
+}
+
+void Renderer::wait_for_gpu()
+{
+    BreakOnFail(g.command_queue->Signal(g.fence, g.fence_value));
+
+    //wait for the event completion
+    BreakOnFail(g.fence->SetEventOnCompletion(g.fence_value, g.fence_event));
+    WaitForSingleObjectEx(g.fence_event, INFINITE, FALSE);
+    g.fence_value++;
+}
+
+void Renderer::next_frame()
+{
+    // signaling the gpu
+    const UINT64 currentFenceValue = g.fence_value;
+    BreakOnFail(g.command_queue->Signal(g.fence, currentFenceValue));
+
+//    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
+
+    // sit and wait for the gpu to yell "GO!"
+    if (g.fence->GetCompletedValue() < g.fence_value)
+    {
+        BreakOnFail(g.fence->SetEventOnCompletion(g.fence_value, g.fence_event));
+        WaitForSingleObjectEx(g.fence_event, INFINITE, FALSE);
+    }
+    g.fence_value = currentFenceValue + 1;
 }
 
 IDXGIAdapter1 * Renderer::findAdapter()
