@@ -35,7 +35,7 @@ void Renderer::render()
 void Renderer::build_command_resourses()
 {
     // building command queue
-    D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {}; // Reset
+    D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
     commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
     BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.commandQueue)));
