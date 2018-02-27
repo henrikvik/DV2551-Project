@@ -6,7 +6,7 @@ int main(int argc, char* argv[])
 {
     Window w("Hi", 500, 500);
     Renderer r;
-	ConstantBuffer test(10, 10);
+	// ConstantBuffer test(10, 10);
 
     while (1)
     {
