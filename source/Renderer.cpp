@@ -122,7 +122,7 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 	swapDesc.Height = window.getWidth();
 	swapDesc.Scaling = DXGI_SCALING_STRETCH;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.BufferCount = ARRAYSIZE(renderTargets);
+	swapDesc.BufferCount = ARRAYSIZE(g.renderTargets);
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;

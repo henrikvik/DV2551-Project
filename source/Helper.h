@@ -50,6 +50,9 @@ struct G
 {
 	ID3D12Device*               device = nullptr;
     
+    IDXGISwapChain3*            swap_chain = nullptr;
+    ID3D12Resource*             renderTargets[FRAME_COUNT];
+
     // Command Resources
     ID3D12CommandAllocator*     command_allocator = nullptr;
     ID3D12CommandQueue*         command_queue = nullptr;
