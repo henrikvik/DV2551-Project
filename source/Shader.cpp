@@ -5,6 +5,7 @@
 #include <d3dcompiler.h>
 #include "Helper.h"
 
+
 Shader::Shader(UINT num)
 {
 	std::stringstream shader_code;
@@ -20,15 +21,22 @@ Shader::Shader(UINT num)
 		mul += " * v" + std::to_string(i);
 	}
 
-	shader_code << "float4 VS_MAIN() : SV_POSITION" << std::endl;
-	shader_code << "{"								<< std::endl;
-	shader_code << "    float v = " << mul << ";"	<< std::endl;
-	shader_code << "    return float4(v,v,v,v);"	<< std::endl;
-	shader_code << "}"								<< std::endl;
+	shader_code << "struct VS_OUT"				  << std::endl;
+	shader_code << "{"							  << std::endl;
+	shader_code << "    float4 pos : SV_POSITION;" << std::endl;
+	shader_code << "};"							  << std::endl;
 
-	shader_code << "float4 PS_MAIN(float pos : SV_POSITION) : SV_TARGET0" << std::endl;
+	shader_code << "VS_OUT VS_MAIN()"					<< std::endl;
+	shader_code << "{"									<< std::endl;
+	shader_code << "    VS_OUT vout;"					<< std::endl;
+	shader_code << "    float v = " << mul << ";"		<< std::endl;
+	shader_code << "    vout.pos = float4(v, v, v, v);"	<< std::endl;
+	shader_code << "    return vout;"					<< std::endl;
+	shader_code << "}"									<< std::endl;
+
+	shader_code << "float4 PS_MAIN(VS_OUT o) : SV_TARGET0" << std::endl;
 	shader_code << "{"													  << std::endl;
-	shader_code << "    return pos;"									  << std::endl;
+	shader_code << "    return o.pos;"									  << std::endl;
 	shader_code << "}"													  << std::endl;
 
 	/*/
