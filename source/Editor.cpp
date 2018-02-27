@@ -92,8 +92,6 @@ void Editor::update_root_window()
     ImGui::End();
 }
 
-
-
 void Editor::update_pipe_window()
 {
     if (ImGui::Begin("Editor - Pipeline State"))
@@ -105,6 +103,6 @@ void Editor::update_pipe_window()
 
 void Editor::render()
 {
-    ImGui::Render();
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData());
+//    ImGui::Render();
+//    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData());
 }

@@ -9,6 +9,7 @@ int main(int argc, char* argv[])
     while (1)
     {
         r.update();
+        r.render();
     }
 
 	return 0;

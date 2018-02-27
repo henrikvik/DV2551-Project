@@ -25,6 +25,11 @@ void Renderer::update()
     editor->update();
 }
 
+void Renderer::render()
+{
+    editor->render();
+}
+
 IDXGIAdapter1 * Renderer::findAdapter()
 {
 	auto factory = createFactory();
