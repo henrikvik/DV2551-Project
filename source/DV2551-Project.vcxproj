@@ -161,6 +161,7 @@
     <ClCompile Include="ImGui\imgui_draw.cpp" />
     <ClCompile Include="ImGui\imgui_impl_dx12.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PipelineState.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RootSignature.cpp" />
     <ClCompile Include="Window.cpp" />
