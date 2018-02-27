@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <crtdbg.h>
+#include <comdef.h>
 #
 
 #define SafeRelease(ptr) {if(ptr){ptr->Release();ptr=nullptr;}}
@@ -47,7 +48,10 @@
 
 struct G
 {
-	ID3D12Device * device;
+	ID3D12Device*               device              = nullptr;
+    ID3D12CommandAllocator*     commandAllocator    = nullptr;
+    ID3D12CommandQueue*         commandQueue        = nullptr;
+    ID3D12GraphicsCommandList*  commandList         = nullptr;
 };
 
 extern G g;

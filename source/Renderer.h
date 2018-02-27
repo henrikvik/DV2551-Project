@@ -14,6 +14,9 @@ public:
     void render();
 
 private:
+
+    void build_command_resourses();
+
     Editor* editor;
 	IDXGIAdapter1 * findAdapter();
 	IDXGIFactory5 * createFactory();
