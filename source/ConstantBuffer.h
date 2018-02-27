@@ -10,6 +10,7 @@ class ConstantBuffer {
 		void createConstantBuffer();
 		void uploadDataToResource();
 	public:
+		/** NYI -- NYI -- Will boop */
 		ConstantBuffer(UINT max, UINT width);
 		~ConstantBuffer();
 
