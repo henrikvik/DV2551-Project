@@ -50,3 +50,26 @@ IDXGIFactory5 * Renderer::createFactory()
 	CreateDXGIFactory(IID_PPV_ARGS(&factory));
 	return factory;
 }
+
+IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *factory, ID3D12CommandQueue *queue)
+{
+	IDXGISwapChain1 *swapChain;
+
+	DXGI_SWAP_CHAIN_DESC1 swapDesc = {};
+	swapDesc.Width = window.getHeight();
+	swapDesc.Height = window.getWidth();
+	swapDesc.Scaling = DXGI_SCALING_STRETCH;
+	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapDesc.BufferCount = ARRAYSIZE(renderTargets);
+	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapDesc.SampleDesc.Count = 1;
+	swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+
+	factory->CreateSwapChainForHwnd(queue, window.getWindowHandle(), &swapDesc, nullptr, nullptr, &swapChain);
+	return swapChain;
+}
+
+void Renderer::createRenderTagets(ID3D12CommandQueue * queue)
+{
+}

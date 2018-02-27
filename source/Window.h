@@ -14,9 +14,12 @@
 class Window {
 private:
 	SDL_Window *sdlWindow;
+	UINT width, height;
 public:
 	Window(const char *title, UINT width, UINT height);
 	~Window();
 
-	HWND getWindowHandle();
+	HWND getWindowHandle() const;
+	UINT getWidth() const;
+	UINT getHeight() const;
 };

@@ -2,6 +2,9 @@
 
 Window::Window(const char *title, UINT width, UINT height)
 {
+	this->width = width;
+	this->height = height;
+
 	sdlWindow = SDL_CreateWindow(
 		title,
 		SDL_WINDOWPOS_UNDEFINED,
@@ -15,7 +18,17 @@ Window::~Window()
 	SDL_DestroyWindow(sdlWindow);
 }
 
-HWND Window::getWindowHandle()
+UINT Window::getWidth() const
+{
+	return width;
+}
+
+UINT Window::getHeight() const
+{
+	return height;
+}
+
+HWND Window::getWindowHandle() const
 {
 	return GetActiveWindow();
 }
