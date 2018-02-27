@@ -156,4 +156,5 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 void Renderer::createRenderTagets(ID3D12CommandQueue * queue)
 {
     // Tjena Notch, Har du lust å snacka?
+    // HEEEEEEY.
 }
