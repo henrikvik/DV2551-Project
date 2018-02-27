@@ -17,7 +17,7 @@ PipelineState::PipelineState(RootSignature* rootSignature)
     UINT compileFlags = 0;
 #endif
 
-    switch (rootSignature->getType())
+    switch (rootSignature->get_type())
     {
     case RootSignature::Type::RootConstant: 
         break;
@@ -31,7 +31,7 @@ PipelineState::PipelineState(RootSignature* rootSignature)
     BreakOnFail2(D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "PSMain", "ps_5_1", compileFlags, 0, &psShader, &errorMsg), errorMsg);
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
-    pipelineStateDesc.pRootSignature = rootSignature->getPtr();
+    pipelineStateDesc.pRootSignature = rootSignature->get_ptr();
     pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vsShader);
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(psShader);
     pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);

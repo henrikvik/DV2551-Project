@@ -1,23 +1,28 @@
 #pragma once
 #include <d3d12.h>
 
+#define GET(var) inline auto get_##var##() { return var; };
+
 class RootSignature
 {
 public:
 	enum class Type { RootConstant, RootConstantBuffer, TableConstantBuffer };
+	enum class Visiblity { 
+		All = D3D12_SHADER_VISIBILITY_ALL, 
+		Vertex = D3D12_SHADER_VISIBILITY_VERTEX,
+		Pixel = D3D12_SHADER_VISIBILITY_PIXEL
+	};
 
-	RootSignature(Type type, UINT entries, UINT depth, bool visible);
+	RootSignature(Type type, UINT num, Visiblity visibilty);
 	virtual ~RootSignature();
 
-	Type getType() { return type; }
-	ID3D12RootSignature * getPtr() { return rootSign; }
+
+	GET(type)GET(num)GET(visibilty)GET(ptr)
 
 private:
-	ID3D12RootSignature * rootSign;
 	Type type;
-
-	D3D12_DESCRIPTOR_RANGE createDescRange(UINT entries);
-	D3D12_ROOT_DESCRIPTOR_TABLE createDescTable(D3D12_DESCRIPTOR_RANGE * ptr, UINT num);
-	D3D12_ROOT_PARAMETER createRootParam(D3D12_ROOT_PARAMETER_TYPE type);
+	UINT num;
+	Visiblity visibilty;
+	ID3D12RootSignature * ptr;
 	
 };

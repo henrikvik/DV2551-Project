@@ -12,6 +12,8 @@ Renderer::Renderer()
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
+
+    build_command_resourses();
 }
 
 Renderer::~Renderer()
@@ -28,6 +30,22 @@ void Renderer::update()
 void Renderer::render()
 {
     editor->render();
+}
+
+void Renderer::build_command_resourses()
+{
+    // building command queue
+    D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
+    commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.commandQueue)));
+
+    // building allocator
+    BreakOnFail(g.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&g.commandAllocator)));
+
+    // building command list
+    BreakOnFail(g.device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, g.commandAllocator, nullptr, IID_PPV_ARGS(&g.commandList)));
+    BreakOnFail(g.commandList->Close());
 }
 
 IDXGIAdapter1 * Renderer::findAdapter()

@@ -19,6 +19,9 @@ public:
 	IDXGISwapChain1* createSwapChain(Window const &window, IDXGIFactory5 *factory, ID3D12CommandQueue *queue);
 	void createRenderTagets(ID3D12CommandQueue *queue);
 private:
+
+    void build_command_resourses();
+
     Editor* editor;
 	ID3D12Resource* renderTargets[FRAME_COUNT];
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <crtdbg.h>
+#include <comdef.h>
 #
 
 #define SafeRelease(ptr) {if(ptr){ptr->Release();ptr=nullptr;}}
@@ -39,7 +40,7 @@
     }\
 }
 
-// Used to toggle a flag off/on easily
+// Used to toggle a flag off on easily
 #define TOGGLE_FLAG(dest, flag) (dest & flag) ? dest &= ~flag : dest |= flag
 
 // Used to check if a flag is toggled of or not
@@ -47,7 +48,10 @@
 
 struct G
 {
-	ID3D12Device * device;
+	ID3D12Device*               device              = nullptr;
+    ID3D12CommandAllocator*     commandAllocator    = nullptr;
+    ID3D12CommandQueue*         commandQueue        = nullptr;
+    ID3D12GraphicsCommandList*  commandList         = nullptr;
 };
 
 extern G g;
