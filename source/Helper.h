@@ -61,6 +61,9 @@ struct G
     ID3D12CommandQueue*         command_queue = nullptr;
     ID3D12GraphicsCommandList*  command_list = nullptr;
 
+	// CB Desc Heap
+	ID3D12DescriptorHeap*		cbdHeap = nullptr;
+
     // Fence Resources
     ID3D12Fence*                fence = nullptr;
     UINT                        fence_index = 0;
