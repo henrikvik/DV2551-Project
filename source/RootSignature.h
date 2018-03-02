@@ -17,7 +17,11 @@ public:
 	virtual ~RootSignature();
 
 
-	GET(type)GET(num)GET(visibilty)GET(ptr)
+	GET(type)
+	GET(num)
+	GET(visibilty)
+	GET(ptr)
+
 private:
 	Type type;
 	UINT num;
