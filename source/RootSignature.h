@@ -8,14 +8,13 @@ class RootSignature
 public:
 	enum class Type { RootConstant, RootConstantBuffer, TableConstantBuffer };
 	enum class Visiblity { 
-		All = D3D12_SHADER_VISIBILITY_ALL, 
-		Vertex = D3D12_SHADER_VISIBILITY_VERTEX,
-		Pixel = D3D12_SHADER_VISIBILITY_PIXEL
+		All		= D3D12_SHADER_VISIBILITY_ALL, 
+		Vertex	= D3D12_SHADER_VISIBILITY_VERTEX,
+		Pixel	= D3D12_SHADER_VISIBILITY_PIXEL
 	};
 
 	RootSignature(Type type, UINT num, Visiblity visibilty);
 	virtual ~RootSignature();
-
 
 	GET(type)
 	GET(num)

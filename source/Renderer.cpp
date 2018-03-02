@@ -74,7 +74,7 @@ void Renderer::build_fence()
     // building the fence event
     g.fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (g.fence_event == nullptr)
-        BreakOnFail(0x80004003, __FILE__, __LINE__);
+        BreakOnFail(0x80004003, __FILE__ __LINE__);
 }
 
 void Renderer::wait_for_gpu()

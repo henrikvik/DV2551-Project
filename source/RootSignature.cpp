@@ -3,9 +3,7 @@
 
 RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 {
-	D3D12_ROOT_CONSTANTS rc			= {};
 	D3D12_ROOT_PARAMETER rp			= {};
-	D3D12_ROOT_DESCRIPTOR_TABLE rdt = {};
 	D3D12_DESCRIPTOR_RANGE dr		= {};
 	D3D12_ROOT_PARAMETER * rps		= nullptr;
 
@@ -14,22 +12,28 @@ RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 
 	if (type == Type::RootConstant)
 	{
-		rc.Num32BitValues = num;
-		rc.RegisterSpace  = 0;
-		rc.ShaderRegister = 0;
+		rps = new D3D12_ROOT_PARAMETER[num];
+		for (size_t i = 0; i < num; i++)
+		{
+			D3D12_ROOT_CONSTANTS rc = {};
+			rc.Num32BitValues = 1;
+			rc.RegisterSpace = i;
+			rc.ShaderRegister = 0;
 
-		rp.ShaderVisibility = (D3D12_SHADER_VISIBILITY)visibilty;
-		rp.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-		rp.Constants        = rc;
+			rps[i].ShaderVisibility = (D3D12_SHADER_VISIBILITY)visibilty;
+			rps[i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+			rps[i].Constants = rc;
+		}
 
-		rsd.NumParameters = 1;
-		rsd.pParameters   = &rp;
+		rsd.NumParameters = num;
+		rsd.pParameters   = rps;
 	}
 	else if (type == Type::RootConstantBuffer)
 	{
 		rps = new D3D12_ROOT_PARAMETER[num];
 		for (size_t i = 0; i < num; i++)
 		{
+			rps[i].ShaderVisibility			 = (D3D12_SHADER_VISIBILITY)visibilty;
 			rps[i].ParameterType		     = D3D12_ROOT_PARAMETER_TYPE_CBV;
 			rps[i].Descriptor.RegisterSpace  = i;
 			rps[i].Descriptor.ShaderRegister = 0;
@@ -46,12 +50,16 @@ RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 		dr.RegisterSpace = 0;
 		dr.NumDescriptors = num;
 
+		D3D12_ROOT_DESCRIPTOR_TABLE rdt = {};
 		rdt.NumDescriptorRanges = 1;
 		rdt.pDescriptorRanges = &dr;
 
 		rp.ShaderVisibility = (D3D12_SHADER_VISIBILITY)visibilty;
 		rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		rp.DescriptorTable = rdt;
+
+		rsd.NumParameters = 1;
+		rsd.pParameters = &rp;
 	}
 
 
