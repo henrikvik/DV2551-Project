@@ -1,7 +1,8 @@
 #include "ConstantBuffer.h" 
 
-ConstantBuffer::ConstantBuffer(UINT max, UINT width) {
+ConstantBuffer::ConstantBuffer(UINT offset, UINT max, UINT width) {
 	this->max = max;
+	this->offset = offset;
 	this->width = width;
 	resource = nullptr;
 
@@ -42,7 +43,7 @@ void ConstantBuffer::uploadDataToResource()
 
 	float *data = new float[width];
 	for (int i = 0; i < width; i++)
-		data[i] = rand() % max;
+		data[i] = (rand() % max) + offset;
 
 	D3D12_RANGE range{ 0, 0 };
 	void *memory;
@@ -58,6 +59,11 @@ UINT ConstantBuffer::getMax() const {
 
 UINT ConstantBuffer::getWidth() const {
 	return width;
+}
+
+UINT ConstantBuffer::getOffset() const
+{
+	return offset;
 }
 
 ID3D12Resource * ConstantBuffer::getResource() const
