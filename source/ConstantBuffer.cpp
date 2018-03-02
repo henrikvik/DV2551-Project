@@ -18,7 +18,7 @@ ConstantBuffer::~ConstantBuffer()
 void ConstantBuffer::createConstantBuffer() {
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-	resDesc.DepthOrArraySize, resDesc.Height, resDesc.MipLevels = 1;
+	resDesc.DepthOrArraySize = resDesc.Height = resDesc.MipLevels = 1;
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
