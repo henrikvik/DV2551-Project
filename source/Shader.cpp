@@ -21,30 +21,30 @@ Shader::Shader(UINT num)
 		mul += " * v" + std::to_string(i);
 	}
 
-	shader_code << "struct VS_OUT"				  << std::endl;
-	shader_code << "{"							  << std::endl;
+	shader_code << "struct Pixel"				   << std::endl;
+	shader_code << "{"							   << std::endl;
 	shader_code << "    float4 pos : SV_POSITION;" << std::endl;
-	shader_code << "};"							  << std::endl;
+	shader_code << "};"							   << std::endl;
 
-	shader_code << "VS_OUT VS_MAIN()"					<< std::endl;
-	shader_code << "{"									<< std::endl;
-	shader_code << "    VS_OUT vout;"					<< std::endl;
-	shader_code << "    float v = " << mul << ";"		<< std::endl;
-	shader_code << "    vout.pos = float4(v, v, v, v);"	<< std::endl;
-	shader_code << "    return vout;"					<< std::endl;
-	shader_code << "}"									<< std::endl;
+	shader_code << "Pixel vs_main()"				 << std::endl;
+	shader_code << "{"								 << std::endl;
+	shader_code << "    Pixel p;"					 << std::endl;
+	shader_code << "    float v = " << mul << ";"	 << std::endl;
+	shader_code << "    p.pos = float4(v, v, v, v);" << std::endl;
+	shader_code << "    return p;"					 << std::endl;
+	shader_code << "}"								 << std::endl;
 
-	shader_code << "float4 PS_MAIN(VS_OUT o) : SV_TARGET0" << std::endl;
-	shader_code << "{"													  << std::endl;
-	shader_code << "    return o.pos;"									  << std::endl;
-	shader_code << "}"													  << std::endl;
-
-	/*/
-	std::ofstream fout("dump.hlsl");
-	fout << shader_code.str();
-	fout.close();//*/
+	shader_code << "float4 ps_main(Pixel p) : SV_TARGET0" << std::endl;
+	shader_code << "{"									  << std::endl;
+	shader_code << "    return p.pos;"					  << std::endl;
+	shader_code << "}"									  << std::endl;
 
 	std::string code = shader_code.str();
+	/*/
+	std::ofstream fout("dump.hlsl");
+	fout << code;
+	fout.close();//*/
+
 
 	ID3DBlob *err;
 	BreakOnFail2(D3DCompile(
@@ -53,7 +53,7 @@ Shader::Shader(UINT num)
 		nullptr,
 		nullptr,
 		nullptr,
-		"VS_MAIN",
+		"vs_main",
 		"vs_5_1",
 		0,
 		0,
@@ -67,7 +67,7 @@ Shader::Shader(UINT num)
 		nullptr,
 		nullptr,
 		nullptr,
-		"PS_MAIN",
+		"ps_main",
 		"ps_5_1",
 		0,
 		0,
@@ -75,8 +75,11 @@ Shader::Shader(UINT num)
 		&err
 	), err);
 
+	SafeRelease(err);
 }
 
 Shader::~Shader()
 {
+	SafeRelease(vs);
+	SafeRelease(ps);
 }

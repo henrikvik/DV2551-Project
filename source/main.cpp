@@ -7,11 +7,10 @@
 
 int main(int argc, char* argv[])
 {
-	// Shader s(32);
-
     Window w("Hi", 500, 500);
     Renderer r(&w);
-	ConstantBuffer test(1, 10, 10);
+	ConstantBuffer::CreateDescHeap(g.cbdHeap, 1);
+	ConstantBuffer test(1, 10, 10, g.cbdHeap);
 
 	__(r.update();)        
         r.render();_

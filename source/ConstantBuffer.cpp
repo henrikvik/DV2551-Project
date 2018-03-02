@@ -1,12 +1,13 @@
 #include "ConstantBuffer.h" 
 
-ConstantBuffer::ConstantBuffer(UINT offset, UINT max, UINT width) {
+ConstantBuffer::ConstantBuffer(UINT offset, UINT max, UINT width, ID3D12DescriptorHeap *descHeap) {
 	this->max = max;
 	this->offset = offset;
 	this->width = width;
 	resource = nullptr;
 
 	createConstantBuffer();
+	createView(descHeap);
 	uploadDataToResource();
 }
 
@@ -35,6 +36,19 @@ void ConstantBuffer::createConstantBuffer() {
 		nullptr,
 		IID_PPV_ARGS(&resource)
 	));
+}
+
+void ConstantBuffer::createView(ID3D12DescriptorHeap *descHeap)
+{
+	UINT size = g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	auto cdh = descHeap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+	desc.BufferLocation = resource->GetGPUVirtualAddress();
+	desc.SizeInBytes = (sizeof(width) + 255) & ~255; // magic
+	g.device->CreateConstantBufferView(&desc, cdh);
+
+	cdh.ptr += size;
 }
 
 void ConstantBuffer::uploadDataToResource()
@@ -69,4 +83,13 @@ UINT ConstantBuffer::getOffset() const
 ID3D12Resource * ConstantBuffer::getResource() const
 {
 	return resource;
+}
+
+void ConstantBuffer::CreateDescHeap(ID3D12DescriptorHeap*& descHeap, UINT numDescriptors)
+{
+	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	desc.NumDescriptors = numDescriptors;
+	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descHeap)));
 }

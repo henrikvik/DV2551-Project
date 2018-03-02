@@ -98,6 +98,7 @@ void Renderer::build_command_resourses()
     D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
     commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	//BreakOnFail(g.device->GetDeviceRemovedReason());
     BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.command_queue)));
 
     // building allocator
@@ -117,7 +118,7 @@ void Renderer::build_fence()
     // building the fence event
     g.fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (g.fence_event == nullptr)
-        BreakOnFail(0x80004003, __FILE__, __LINE__);
+        BreakOnFail(0x80004003, __FILE__ __LINE__);
 }
 
 void Renderer::build_rs()
