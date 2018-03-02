@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d12.h>
 
-#define GET(var) inline auto get_##var##() { return var; };
+#define GET(var) inline auto get_##var##() const { return var; };
 
 class RootSignature
 {
@@ -18,7 +18,6 @@ public:
 
 
 	GET(type)GET(num)GET(visibilty)GET(ptr)
-
 private:
 	Type type;
 	UINT num;
