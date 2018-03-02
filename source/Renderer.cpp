@@ -11,6 +11,7 @@ static const FLOAT clearColor[4] = { 1, 1, 1, 1 };
 Renderer::Renderer(Window* w)
 {
     editor = new Editor(this);
+    window = w;
 
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
@@ -24,6 +25,7 @@ Renderer::Renderer(Window* w)
     build_command_resourses();
     g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
     build_fence();
+    build_rs();
     createRenderTagets();
 }
 
@@ -44,7 +46,7 @@ void Renderer::update()
 
 void Renderer::render()
 {
-    frame();
+//    frame();
     editor->render();
     
     ID3D12CommandList* temp[] = { g.command_list };
@@ -65,9 +67,9 @@ void Renderer::frame()
     //g.command_list->SetPipelineState(pipelineState);
     //g.command_list->SetGraphicsRootSignature(rootSignature);
 
-    //// Setting RS
-    //g.command_list->RSSetViewports(1, &viewPort);
-    //g.command_list->RSSetScissorRects(1, &scissorRect);
+    // Setting RS
+    g.command_list->RSSetViewports(1, &g.view_port);
+    g.command_list->RSSetScissorRects(1, &g.scissor_rect);
 
     // Setting the Render Target Desc
     ID3D12DescriptorHeap* ppHeaps[] = { g.render_target_heap };
@@ -110,6 +112,12 @@ void Renderer::build_fence()
     g.fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (g.fence_event == nullptr)
         BreakOnFail(0x80004003, __FILE__, __LINE__);
+}
+
+void Renderer::build_rs()
+{
+    g.view_port = CD3DX12_VIEWPORT(0.0f, 0.0f, window->getWidth(), window->getWidth());
+    g.scissor_rect = CD3DX12_RECT(0, 0, LONG(window->getWidth()), LONG(window->getWidth()));
 }
 
 void Renderer::wait_for_gpu()

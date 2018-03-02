@@ -21,6 +21,7 @@ private:
 
     void build_command_resourses();
     void build_fence();
+    void build_rs();
     void createRenderTagets();
 
     void wait_for_gpu();
@@ -28,6 +29,7 @@ private:
 
     Editor* editor;
 	ID3D12Debug* debug;
+    Window* window;
 
 	IDXGIAdapter1* findAdapter();
 	IDXGIFactory5* createFactory();

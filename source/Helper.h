@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <d3dx12.h>
 #include <crtdbg.h>
 #include <comdef.h>
 #
@@ -69,6 +70,10 @@ struct G
     UINT                        frame_index = 0;
     HANDLE                      fence_event;
     UINT64                      fence_value = 0;
+
+    // RS
+    CD3DX12_VIEWPORT            view_port;
+    CD3DX12_RECT                scissor_rect;
 };
 
 extern G g;
