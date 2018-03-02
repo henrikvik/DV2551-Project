@@ -4,6 +4,8 @@
 #include <dxgi1_6.h>
 #include <d3dx12.h>
 
+class PipelineState;
+class RootSignature;
 class Window;
 class Renderer
 {
@@ -34,4 +36,8 @@ private:
 	IDXGIAdapter1* findAdapter();
 	IDXGIFactory5* createFactory();
 	void setupDebug();
+
+    // test 
+    PipelineState* pipelineState;
+    RootSignature* rootSignature;
 };

@@ -3,6 +3,9 @@
 
 RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 {
+    this->num = num;
+    this->type = type;
+
 	D3D12_ROOT_CONSTANTS rc			= {};
 	D3D12_ROOT_PARAMETER rp			= {};
 	D3D12_ROOT_DESCRIPTOR_TABLE rdt = {};

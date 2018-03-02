@@ -2,6 +2,8 @@
 #include "Helper.h"
 #include "Editor.h"
 #include "Window.h"
+#include "PipelineState.h"
+#include "RootSignature.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -27,6 +29,10 @@ Renderer::Renderer(Window* w)
     build_fence();
     build_rs();
     createRenderTagets();
+
+    // temp
+    rootSignature = new RootSignature(RootSignature::Type::TableConstantBuffer, 1, RootSignature::Visiblity::Vertex);
+    pipelineState = new PipelineState(rootSignature);
 }
 
 Renderer::~Renderer()
@@ -63,9 +69,9 @@ void Renderer::frame()
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
-    //// Setting current testing setup
-    //g.command_list->SetPipelineState(pipelineState);
-    //g.command_list->SetGraphicsRootSignature(rootSignature);
+    // Setting current testing setup
+    g.command_list->SetPipelineState(pipelineState->getPipelineState());
+    g.command_list->SetGraphicsRootSignature(rootSignature->get_ptr());
 
     // Setting RS
     g.command_list->RSSetViewports(1, &g.view_port);

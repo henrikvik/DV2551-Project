@@ -1,5 +1,6 @@
 #include "PipelineState.h"
 #include "RootSignature.h"
+#include "Shader.h"
 #include "Helper.h"
 #include <comdef.h>
 
@@ -27,13 +28,11 @@ PipelineState::PipelineState(RootSignature* rootSignature)
         break;
     }
 
-    BreakOnFail2(D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "VSMain", "vs_5_1", compileFlags, 0, &vsShader, &errorMsg), errorMsg);
-    BreakOnFail2(D3DCompileFromFile(L"Shader.hlsl", nullptr, nullptr, "PSMain", "ps_5_1", compileFlags, 0, &psShader, &errorMsg), errorMsg);
-
+    Shader shader(rootSignature->get_num());
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
     pipelineStateDesc.pRootSignature = rootSignature->get_ptr();
-    pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vsShader);
-    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(psShader);
+    pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(shader.get_vs());
+    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(shader.get_ps());
     pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
