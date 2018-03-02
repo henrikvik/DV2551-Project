@@ -6,6 +6,8 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
+static const FLOAT clearColor[4] = { 1, 1, 1, 1 };
+
 Renderer::Renderer(Window* w)
 {
     editor = new Editor(this);
@@ -22,6 +24,7 @@ Renderer::Renderer(Window* w)
     build_command_resourses();
     g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
     build_fence();
+    createRenderTagets();
 }
 
 Renderer::~Renderer()
@@ -34,19 +37,51 @@ Renderer::~Renderer()
 #endif
 }
 
-void Renderer::update() 
+void Renderer::update()
 {
     editor->update();
 }
 
 void Renderer::render()
 {
+    frame();
     editor->render();
-    // execute command list
-    // swapchain present
-    g.swap_chain->Present(0, 1);
+    
+    ID3D12CommandList* temp[] = { g.command_list };
+    g.command_queue->ExecuteCommandLists(_countof(temp), temp);
+    g.swap_chain->Present(1, 0);
+
     next_frame();
     wait_for_gpu();
+}
+
+void Renderer::frame()
+{
+    // Starting the command list & allocator
+    BreakOnFail(g.command_allocator->Reset());
+    BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
+
+    //// Setting current testing setup
+    //g.command_list->SetPipelineState(pipelineState);
+    //g.command_list->SetGraphicsRootSignature(rootSignature);
+
+    //// Setting RS
+    //g.command_list->RSSetViewports(1, &viewPort);
+    //g.command_list->RSSetScissorRects(1, &scissorRect);
+
+    // Setting the Render Target Desc
+    ID3D12DescriptorHeap* ppHeaps[] = { g.render_target_heap };
+    g.command_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+    // Switching front & back buffers
+    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+    CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
+    g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
+    g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
+    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+    // Closing the command list
+    BreakOnFail(g.command_list->Close());
 }
 
 void Renderer::build_command_resourses()
@@ -93,7 +128,7 @@ void Renderer::next_frame()
     const UINT64 currentFenceValue = g.fence_value;
     BreakOnFail(g.command_queue->Signal(g.fence, currentFenceValue));
 
-    g.fence_index = g.swap_chain->GetCurrentBackBufferIndex();
+    g.frame_index = g.swap_chain->GetCurrentBackBufferIndex();
 
     // sit and wait for the gpu to yell "GO!"
     if (g.fence->GetCompletedValue() < g.fence_value)
@@ -104,7 +139,7 @@ void Renderer::next_frame()
     g.fence_value = currentFenceValue + 1;
 }
 
-IDXGIAdapter1 * Renderer::findAdapter()
+IDXGIAdapter1* Renderer::findAdapter()
 {
 	auto factory = createFactory();
 	IDXGIAdapter1 * adapter = nullptr;
@@ -143,7 +178,7 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 	swapDesc.Height = window.getWidth();
 	swapDesc.Scaling = DXGI_SCALING_STRETCH;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.BufferCount = ARRAYSIZE(g.renderTargets);
+	swapDesc.BufferCount = ARRAYSIZE(g.render_target);
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -153,8 +188,21 @@ IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *
 	return swapChain;
 }
 
-void Renderer::createRenderTagets(ID3D12CommandQueue * queue)
+void Renderer::createRenderTagets()
 {
-    // Tjena Notch, Har du lust å snacka?
-    // HEEEEEEY.
+    // creating the heap for the render targets
+    D3D12_DESCRIPTOR_HEAP_DESC renderTargetViewHeapDesc = {};
+    renderTargetViewHeapDesc.NumDescriptors = ARRAYSIZE(g.render_target);
+    renderTargetViewHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    renderTargetViewHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    BreakOnFail(g.device->CreateDescriptorHeap(&renderTargetViewHeapDesc, IID_PPV_ARGS(&g.render_target_heap)));
+
+    // actually creating the render targets (back & front buffers)
+    CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart());
+    for (UINT i = 0; i < ARRAYSIZE(g.render_target); i++)
+    {
+        BreakOnFail(g.swap_chain->GetBuffer(i, IID_PPV_ARGS(&g.render_target[i])));
+        g.device->CreateRenderTargetView(g.render_target[i], nullptr, renderTargetViewHandle);
+        renderTargetViewHandle.Offset(1, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
+    }
 }

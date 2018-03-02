@@ -54,7 +54,10 @@ struct G
 	ID3D12Device*               device = nullptr;
     
     IDXGISwapChain3*            swap_chain = nullptr;
-    ID3D12Resource*             renderTargets[FRAME_COUNT];
+
+    // Render Targets
+    ID3D12Resource*             render_target[FRAME_COUNT];
+    ID3D12DescriptorHeap*       render_target_heap;
 
     // Command Resources
     ID3D12CommandAllocator*     command_allocator = nullptr;
@@ -63,7 +66,7 @@ struct G
 
     // Fence Resources
     ID3D12Fence*                fence = nullptr;
-    UINT                        fence_index = 0;
+    UINT                        frame_index = 0;
     HANDLE                      fence_event;
     UINT64                      fence_value = 0;
 };
