@@ -74,9 +74,11 @@ RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 		&blob,
 		&err
 	), err);
-
+    
 
 	if (type == Type::RootConstantBuffer) delete[] rps;
+
+    BreakOnFail(g.device->CreateRootSignature(0, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&ptr)));
 }
 
 RootSignature::~RootSignature()

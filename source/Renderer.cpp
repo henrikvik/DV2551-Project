@@ -8,7 +8,7 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-static const FLOAT clearColor[4] = { 1, 1, 1, 1 };
+static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
 Renderer::Renderer(Window* w)
 {
@@ -31,7 +31,7 @@ Renderer::Renderer(Window* w)
     createRenderTagets();
 
     // temp
-    rootSignature = new RootSignature(RootSignature::Type::TableConstantBuffer, 1, RootSignature::Visiblity::Vertex);
+    rootSignature = new RootSignature(RootSignature::Type::RootConstantBuffer, 1, RootSignature::Visiblity::All);
     pipelineState = new PipelineState(rootSignature);
 }
 
@@ -47,13 +47,12 @@ Renderer::~Renderer()
 
 void Renderer::update()
 {
-    editor->update();
+//    editor->update();
 }
 
 void Renderer::render()
 {
-//    frame();
-    editor->render();
+    frame();
     
     ID3D12CommandList* temp[] = { g.command_list };
     g.command_queue->ExecuteCommandLists(_countof(temp), temp);
@@ -73,23 +72,35 @@ void Renderer::frame()
     g.command_list->SetPipelineState(pipelineState->getPipelineState());
     g.command_list->SetGraphicsRootSignature(rootSignature->get_ptr());
 
+    // Setting the Render Target Desc
+//    ID3D12DescriptorHeap* ppHeaps[] = { g.render_target_heap };
+//    g.command_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
     // Setting RS
     g.command_list->RSSetViewports(1, &g.view_port);
     g.command_list->RSSetScissorRects(1, &g.scissor_rect);
 
-    // Setting the Render Target Desc
-    ID3D12DescriptorHeap* ppHeaps[] = { g.render_target_heap };
-    g.command_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-    // Switching front & back buffers
+    // Switching current buffer to rendertarget, to be able to draw on it
     g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
     CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
     g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
     g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
+
+    g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    // Drawing Editor windows
+//    editor->render();
+
+    // Switch the current rendertarget to present
     g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
+
     // Closing the command list
-    BreakOnFail(g.command_list->Close());
+    HRESULT h = (g.command_list->Close());
+    if (h == E_FAIL) printf("Fail.\n");
+    if (h == E_OUTOFMEMORY) printf("outof.\n");
+    if (h == E_INVALIDARG) printf("invalid arg.\n");
+
 }
 
 void Renderer::build_command_resourses()
