@@ -11,7 +11,6 @@ class ConstantBuffer {
 		void createView(ID3D12DescriptorHeap *descHeap);
 		void uploadDataToResource();
 	public:
-		/** NYI -- NYI -- Will boop */
 		ConstantBuffer(UINT offset, UINT max, UINT width, ID3D12DescriptorHeap *descHeap);
 		~ConstantBuffer();
 

@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	ConstantBuffer::CreateDescHeap(g.cbdHeap, 1);
 	ConstantBuffer test(1, 10, 10, g.cbdHeap);
 
-	__(r.update();)        
+	__(r.update();)
         r.render();_
 
 	return 0;
