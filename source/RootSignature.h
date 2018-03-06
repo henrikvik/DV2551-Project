@@ -16,10 +16,10 @@ public:
 	RootSignature(Type type, UINT num, Visiblity visibilty);
 	virtual ~RootSignature();
 
-	GET(type)
-	GET(num)
-	GET(visibilty)
-	GET(ptr)
+	inline auto get_type()		 const { return this->type;		 }
+	inline auto get_num()		 const { return this->num;		 }
+	inline auto get_visibility() const { return this->visibilty; }
+	inline ID3D12RootSignature * get_ptr()   { return this->ptr; }
 
 private:
 	Type type;
