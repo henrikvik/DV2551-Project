@@ -10,25 +10,19 @@
 
 Editor::Editor(Renderer* _renderer)
 {
-
-    //// Put somewhere in window
-    //ImGui_ImplWin32_WndProcHandler(GetActiveWindow(), msg, wParam, lParam);
-
-    //ImGui::CreateContext();
-    //ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ////io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
-    //ImGui_ImplDX12_Init(hwnd, NUM_FRAMES_IN_FLIGHT, g_pd3dDevice,
-    //    DXGI_FORMAT_R8G8B8A8_UNORM,
-    //    g_srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-    //    g_srvDescHeap->GetGPUDescriptorHandleForHeapStart());
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
+    ImGui_ImplDX12_Init(GetActiveWindow(), FRAME_COUNT, g.device, DXGI_FORMAT_R8G8B8A8_UNORM, g.font_heap->GetCPUDescriptorHandleForHeapStart(), g.font_heap->GetGPUDescriptorHandleForHeapStart());
 
     // Setup style
-//    ImGui::StyleColorsDark();
-
+    ImGui::StyleColorsDark();
 
     renderer = _renderer;
     wnd_flags = 0;
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW);
+    TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::ROOT_WINDOW);
+    TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::PIPE_WINDOW);
 }
 
 Editor::~Editor() 

@@ -12,13 +12,19 @@ static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
 Renderer::Renderer(Window* w)
 {
-    editor = new Editor(this);
     window = w;
 
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
 	SafeRelease(debug);
+
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+    desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    desc.NumDescriptors = 1;
+    desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+    g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap));
+
 
 #ifdef _DEBUG
 	setupDebug();
@@ -33,6 +39,8 @@ Renderer::Renderer(Window* w)
     // temp
     rootSignature = new RootSignature(RootSignature::Type::RootConstantBuffer, 1, RootSignature::Visiblity::All);
     pipelineState = new PipelineState(rootSignature);
+
+    editor = new Editor(this);
 }
 
 Renderer::~Renderer()
@@ -47,7 +55,7 @@ Renderer::~Renderer()
 
 void Renderer::update()
 {
-//    editor->update();
+    editor->update();
 }
 
 void Renderer::render()
@@ -88,10 +96,12 @@ void Renderer::frame()
 
     g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+
     // Drawing Editor windows
-//    editor->render();
+    editor->render();
 
     // Switch the current rendertarget to present
+    g.command_list->SetDescriptorHeaps(1, &g.font_heap);
     g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 
@@ -100,7 +110,6 @@ void Renderer::frame()
     if (h == E_FAIL) printf("Fail.\n");
     if (h == E_OUTOFMEMORY) printf("outof.\n");
     if (h == E_INVALIDARG) printf("invalid arg.\n");
-
 }
 
 void Renderer::build_command_resourses()

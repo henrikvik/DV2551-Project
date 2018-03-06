@@ -1,9 +1,12 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "ConstantBuffer.h"
+#include "ImGui\imgui.h"
+#include "ImGui\imgui_impl_dx12.h"
 
-#define __(v) while (1) { v
-#define _ }
+#define D_O_ while (1) { 
+#define S_H_I_T_ r.update(); r.render(); 
+#define F_O_R_E_V_E_R_ } return 0;
 
 int main(int argc, char* argv[])
 {
@@ -12,8 +15,5 @@ int main(int argc, char* argv[])
 	ConstantBuffer::CreateDescHeap(g.cbdHeap, 1);
 	ConstantBuffer test(1, 10, 10, g.cbdHeap);
 
-	__(r.update();)
-        r.render();_
-
-	return 0;
+	D_O_ S_H_I_T_ F_O_R_E_V_E_R_
 }

@@ -108,6 +108,7 @@ struct G
     // Render Targets
     ID3D12Resource*             render_target[FRAME_COUNT];
     ID3D12DescriptorHeap*       render_target_heap;
+    ID3D12DescriptorHeap*       font_heap;
 
     // Command Resources
     ID3D12CommandAllocator*     command_allocator = nullptr;
