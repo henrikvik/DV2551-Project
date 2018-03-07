@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "PipelineState.h"
 #include "RootSignature.h"
+#include "D3D12Timer.hpp"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -59,6 +60,32 @@ Renderer::~Renderer()
 void Renderer::update()
 {
     editor->update();
+
+    UINT num_buffers = 32;
+    RootSignature sign_root_buffer  (RootSignature::Type::RootConstantBuffer,  num_buffers, RootSignature::Visiblity::All);
+    RootSignature sign_table_buffer (RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
+    RootSignature sign_root_constant(RootSignature::Type::RootConstant,        num_buffers, RootSignature::Visiblity::All);
+    PipelineState pipe_root_buffer  (&sign_root_buffer);
+    PipelineState pipe_table_buffer (&sign_table_buffer);
+    PipelineState pipe_root_constant(&sign_root_constant);
+
+    D3D12Timer timer(g.device);
+    UINT num_vertices = 1000;
+
+    auto get_time = [&](PipelineState & pipe){
+        g.command_list->Reset(nullptr, pipe);
+        timer.Start(g.command_list);
+        g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
+        timer.Stop(g.command_list);
+        timer.CalculateTime();
+        return timer.GetDeltaTime();
+    };
+
+    UINT64 time_root_buffer   = get_time(pipe_root_buffer);
+    UINT64 time_table_buffer  = get_time(pipe_table_buffer);
+    UINT64 time_root_constant = get_time(pipe_root_constant);
+
+
 }
 
 void Renderer::render()
@@ -113,6 +140,12 @@ void Renderer::frame()
     if (h == E_FAIL) printf("Fail.\n");
     if (h == E_OUTOFMEMORY) printf("outof.\n");
     if (h == E_INVALIDARG) printf("invalid arg.\n");
+
+
+
+
+
+
 }
 
 void Renderer::build_command_resourses()
