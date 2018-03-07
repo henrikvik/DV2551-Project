@@ -13,7 +13,7 @@ public:
     ~PipelineState();
 
     ID3D12PipelineState* getPipelineState() { return pipelineState; }
-
+    operator ID3D12PipelineState*() { return pipelineState; }
 private:
     ID3D12PipelineState* pipelineState;
 };
