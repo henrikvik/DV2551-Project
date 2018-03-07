@@ -18,17 +18,20 @@ Renderer::Renderer(Window* w)
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
 	SafeRelease(debug);
+    BreakOnFail(g.device->GetDeviceRemovedReason());
 
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     desc.NumDescriptors = 1;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap));
+    BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap)));
 
 
 #ifdef _DEBUG
-	setupDebug();
+	//setupDebug(); // this kills the crab
 #endif
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
 
     build_command_resourses();
     g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
@@ -118,7 +121,7 @@ void Renderer::build_command_resourses()
     D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
     commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	//BreakOnFail(g.device->GetDeviceRemovedReason());
+	BreakOnFail(g.device->GetDeviceRemovedReason());
     BreakOnFail(g.device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&g.command_queue)));
 
     // building allocator
