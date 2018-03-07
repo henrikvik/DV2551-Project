@@ -169,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="D3D12Timer.hpp" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="ImGui\imconfig.h" />
