@@ -14,8 +14,10 @@ public:
 
     ID3D12PipelineState* getPipelineState() { return pipelineState; }
     operator ID3D12PipelineState*() { return pipelineState; }
+    RootSignature* getRootSignature() { return pRootSignature; }
 private:
     ID3D12PipelineState* pipelineState;
+    RootSignature* pRootSignature;
 };
 
 

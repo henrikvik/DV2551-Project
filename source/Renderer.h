@@ -18,7 +18,7 @@ public:
     void render();
     void frame();
 
-	IDXGISwapChain1* createSwapChain(Window const &window, IDXGIFactory5 *factory, ID3D12CommandQueue *queue);
+	IDXGISwapChain1* createSwapChain(Window const &window, IDXGIFactory4 *factory, ID3D12CommandQueue *queue);
 private:
 
     void build_command_resourses();
@@ -34,10 +34,6 @@ private:
     Window* window;
 
 	IDXGIAdapter1* findAdapter();
-	IDXGIFactory5* createFactory();
+	IDXGIFactory4* createFactory();
 	void setupDebug();
-
-    // test 
-    PipelineState* pipelineState;
-    RootSignature* rootSignature;
 };

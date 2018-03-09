@@ -18,7 +18,6 @@ Renderer::Renderer(Window* w)
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
-	SafeRelease(debug);
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
     D3D12_DESCRIPTOR_HEAP_DESC desc = {};
@@ -27,22 +26,16 @@ Renderer::Renderer(Window* w)
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap)));
 
-
 #ifdef _DEBUG
-	//setupDebug(); // this kills the crab
+//	setupDebug(); // this kills the crab
 #endif
     BreakOnFail(g.device->GetDeviceRemovedReason());
-
 
     build_command_resourses();
     g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
     build_fence();
     build_rs();
     createRenderTagets();
-
-    // temp
-    rootSignature = new RootSignature(RootSignature::Type::RootConstantBuffer, 1, RootSignature::Visiblity::All);
-    pipelineState = new PipelineState(rootSignature);
 
     editor = new Editor(this);
 }
@@ -60,32 +53,6 @@ Renderer::~Renderer()
 void Renderer::update()
 {
     editor->update();
-
-    UINT num_buffers = 32;
-    RootSignature sign_root_buffer  (RootSignature::Type::RootConstantBuffer,  num_buffers, RootSignature::Visiblity::All);
-    RootSignature sign_table_buffer (RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
-    RootSignature sign_root_constant(RootSignature::Type::RootConstant,        num_buffers, RootSignature::Visiblity::All);
-    PipelineState pipe_root_buffer  (&sign_root_buffer);
-    PipelineState pipe_table_buffer (&sign_table_buffer);
-    PipelineState pipe_root_constant(&sign_root_constant);
-
-    D3D12Timer timer(g.device);
-    UINT num_vertices = 1000;
-
-    auto get_time = [&](PipelineState & pipe){
-        g.command_list->Reset(nullptr, pipe);
-        timer.Start(g.command_list);
-        g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
-        timer.Stop(g.command_list);
-        timer.CalculateTime();
-        return timer.GetDeltaTime();
-    };
-
-    UINT64 time_root_buffer   = get_time(pipe_root_buffer);
-    UINT64 time_table_buffer  = get_time(pipe_table_buffer);
-    UINT64 time_root_constant = get_time(pipe_root_constant);
-
-
 }
 
 void Renderer::render()
@@ -102,50 +69,38 @@ void Renderer::render()
 
 void Renderer::frame()
 {
-    // Starting the command list & allocator
+    UINT num_buffers = 32;
+    static RootSignature sign_root_buffer(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
+    static RootSignature sign_table_buffer(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
+    static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
+    static PipelineState pipe_root_buffer(&sign_root_buffer);
+    static PipelineState pipe_table_buffer(&sign_table_buffer);
+    static PipelineState pipe_root_constant(&sign_root_constant);
+
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
-    // Setting current testing setup
-    g.command_list->SetPipelineState(pipelineState->getPipelineState());
-    g.command_list->SetGraphicsRootSignature(rootSignature->get_ptr());
+    static D3D12Timer timer(g.device);
+    UINT num_vertices = 100000;
+    auto get_time = [&](PipelineState& pipe) 
+    {
+        g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
+        g.command_list->SetPipelineState(pipe);
+        timer.Start(g.command_list);
+        g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
+        timer.Stop(g.command_list);
+        timer.CalculateTime();
+        printf("%lld\n", timer.GetDeltaTime()); // temp
+        return timer.GetDeltaTime();
+    };
 
-    // Setting the Render Target Desc
-//    ID3D12DescriptorHeap* ppHeaps[] = { g.render_target_heap };
-//    g.command_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+    UINT64 time_root_buffer = get_time(pipe_root_buffer);
+    UINT64 time_table_buffer = get_time(pipe_table_buffer);
+    UINT64 time_root_constant = get_time(pipe_root_constant);
 
-    // Setting RS
-    g.command_list->RSSetViewports(1, &g.view_port);
-    g.command_list->RSSetScissorRects(1, &g.scissor_rect);
-
-    // Switching current buffer to rendertarget, to be able to draw on it
-    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-    CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
-    g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
-    g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
-
-    g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-
-    // Drawing Editor windows
     editor->render();
 
-    // Switch the current rendertarget to present
-    g.command_list->SetDescriptorHeaps(1, &g.font_heap);
-    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-
-    // Closing the command list
-    HRESULT h = (g.command_list->Close());
-    if (h == E_FAIL) printf("Fail.\n");
-    if (h == E_OUTOFMEMORY) printf("outof.\n");
-    if (h == E_INVALIDARG) printf("invalid arg.\n");
-
-
-
-
-
-
+    BreakOnFail(g.command_list->Close());
 }
 
 void Renderer::build_command_resourses()
@@ -224,23 +179,29 @@ IDXGIAdapter1* Renderer::findAdapter()
 	return adapter;
 }
 
-IDXGIFactory5 * Renderer::createFactory()
+IDXGIFactory4 * Renderer::createFactory()
 {
-	IDXGIFactory5 * factory = nullptr;
-	CreateDXGIFactory(IID_PPV_ARGS(&factory));
+    IDXGIFactory4* factory = nullptr;
+#if _DEBUG
+    BreakOnFail(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&factory)));
+#else
+    BreakOnFail(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory)));
+#endif
+
 	return factory;
 }
 
 void Renderer::setupDebug()
 {
-	debug = nullptr;
-	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug))))
-	{
-		debug->EnableDebugLayer();
-	}
+    // Enable the debug layer
+    ID3D12Debug* debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+    {
+        debugController->EnableDebugLayer();
+    }
 }
 
-IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory5 *factory, ID3D12CommandQueue *queue)
+IDXGISwapChain1* Renderer::createSwapChain(Window const &window, IDXGIFactory4 *factory, ID3D12CommandQueue *queue)
 {
 	IDXGISwapChain1 *swapChain;
 

@@ -8,6 +8,7 @@
 
 PipelineState::PipelineState(RootSignature* rootSignature) 
 {
+    pRootSignature = rootSignature;
     ID3DBlob* vsShader;
     ID3DBlob* psShader;
     ID3DBlob* errorMsg;

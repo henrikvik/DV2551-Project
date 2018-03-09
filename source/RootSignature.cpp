@@ -21,8 +21,8 @@ RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 		{
 			D3D12_ROOT_CONSTANTS rc = {};
 			rc.Num32BitValues = 1;
-			rc.RegisterSpace = i;
-			rc.ShaderRegister = 0;
+			rc.RegisterSpace = 0;
+			rc.ShaderRegister = i;
 
 			rps[i].ShaderVisibility = (D3D12_SHADER_VISIBILITY)visibilty;
 			rps[i].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -39,8 +39,8 @@ RootSignature::RootSignature(Type type, UINT num, Visiblity visibilty)
 		{
 			rps[i].ShaderVisibility			 = (D3D12_SHADER_VISIBILITY)visibilty;
 			rps[i].ParameterType		     = D3D12_ROOT_PARAMETER_TYPE_CBV;
-			rps[i].Descriptor.RegisterSpace  = i;
-			rps[i].Descriptor.ShaderRegister = 0;
+			rps[i].Descriptor.ShaderRegister = i;
+			rps[i].Descriptor.RegisterSpace = 0;
 		}
 
 		rsd.NumParameters = num;
