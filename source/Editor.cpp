@@ -34,6 +34,7 @@ Editor::~Editor()
 void Editor::update()
 {
     ImGui_ImplDX12_NewFrame(g.command_list);
+
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW)) update_main_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::ROOT_WINDOW)) update_root_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::PIPE_WINDOW)) update_pipe_window();

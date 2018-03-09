@@ -52,7 +52,7 @@ Renderer::~Renderer()
 
 void Renderer::update()
 {
-    editor->update();
+ //   editor->update();
 }
 
 void Renderer::render()
@@ -61,7 +61,7 @@ void Renderer::render()
     
     ID3D12CommandList* temp[] = { g.command_list };
     g.command_queue->ExecuteCommandLists(_countof(temp), temp);
-    g.swap_chain->Present(1, 0);
+    g.swap_chain->Present(0, 0); // Present(1, 0); with vsync
 
     next_frame();
     wait_for_gpu();
@@ -81,7 +81,7 @@ void Renderer::frame()
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
     static D3D12Timer timer(g.device);
-    UINT num_vertices = 100000;
+    UINT num_vertices = 1000;
     auto get_time = [&](PipelineState& pipe) 
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
@@ -98,7 +98,27 @@ void Renderer::frame()
     UINT64 time_table_buffer = get_time(pipe_table_buffer);
     UINT64 time_root_constant = get_time(pipe_root_constant);
 
-    editor->render();
+    //// Rendering ImGui (Taken from the ImGui Sample)
+    //D3D12_RESOURCE_BARRIER barrier = {};
+    //barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    //barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    //barrier.Transition.pResource = g.render_target[g.frame_index];
+    //barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    //barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    //barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    //g.command_list->Reset(g.command_allocator, NULL);
+    //g.command_list->ResourceBarrier(1, &barrier);
+
+    //CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
+    //g.command_list->ClearRenderTargetView(renderTargetViewHandle, (float*)&clearColor, 0, nullptr);
+    //g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
+    //g.command_list->SetDescriptorHeaps(1, &g.font_heap);
+    //
+    //editor->render();
+    //
+    //barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    //barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    //g.command_list->ResourceBarrier(1, &barrier);
 
     BreakOnFail(g.command_list->Close());
 }
@@ -129,7 +149,7 @@ void Renderer::build_fence()
     // building the fence event
     g.fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (g.fence_event == nullptr)
-        BreakOnFail(0x80004003, __FILE__ __LINE__);
+        BreakOnFail(0x80004003);
 }
 
 void Renderer::build_rs()
