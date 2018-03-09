@@ -80,12 +80,34 @@ void Renderer::frame()
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
+    g.command_list->RSSetViewports(1, &g.view_port);
+    g.command_list->RSSetScissorRects(1, &g.scissor_rect);
+    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+    CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
+    g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
+    g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
+
     static D3D12Timer timer(g.device);
     UINT num_vertices = 1000;
-    auto get_time = [&](PipelineState& pipe) 
+    auto get_time = [&](PipelineState& pipe)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
         g.command_list->SetPipelineState(pipe);
+
+        //switch (pipe.getRootSignature()->get_type())
+        //{
+        //case RootSignature::Type::RootConstant:
+        //    // g.command_list->SetGraphicsRoot32BitConstant(i, rc) // vi skapar aldrig domma nånstans
+        //    break;
+        //case RootSignature::Type::RootConstantBuffer:
+        //    // g.command_list->SetGraphicsRootConstantBufferView(i, cb); // vi skapar aldrig domma nånstans
+        //break;
+        //case RootSignature::Type::TableConstantBuffer:
+        //    CD3DX12_GPU_DESCRIPTOR_HANDLE tableHandle(g.cbdHeap->GetGPUDescriptorHandleForHeapStart(), 0, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+        //    g.command_list->SetGraphicsRootDescriptorTable(0, tableHandle);
+        //    break;
+        //}
+
         timer.Start(g.command_list);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer.Stop(g.command_list);
@@ -98,28 +120,9 @@ void Renderer::frame()
     UINT64 time_table_buffer = get_time(pipe_table_buffer);
     UINT64 time_root_constant = get_time(pipe_root_constant);
 
-    //// Rendering ImGui (Taken from the ImGui Sample)
-    //D3D12_RESOURCE_BARRIER barrier = {};
-    //barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    //barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    //barrier.Transition.pResource = g.render_target[g.frame_index];
-    //barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-    //barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-    //barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    //g.command_list->Reset(g.command_allocator, NULL);
-    //g.command_list->ResourceBarrier(1, &barrier);
+    // editor->render();
 
-    //CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
-    //g.command_list->ClearRenderTargetView(renderTargetViewHandle, (float*)&clearColor, 0, nullptr);
-    //g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
-    //g.command_list->SetDescriptorHeaps(1, &g.font_heap);
-    //
-    //editor->render();
-    //
-    //barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    //barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-    //g.command_list->ResourceBarrier(1, &barrier);
-
+    g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
     BreakOnFail(g.command_list->Close());
 }
 
