@@ -11,6 +11,10 @@
 
 static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
+#define RB_TIMER 0
+#define TB_TIMER 1
+#define CB_TIMER 2
+
 Renderer::Renderer(Window* w)
 {
     window = w;
@@ -27,7 +31,7 @@ Renderer::Renderer(Window* w)
     BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap)));
 
 #ifdef _DEBUG
-//	setupDebug(); // this kills the crab
+	setupDebug(); // this kills the crab
 #endif
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
@@ -63,8 +67,13 @@ void Renderer::render()
     g.command_queue->ExecuteCommandLists(_countof(temp), temp);
     g.swap_chain->Present(0, 0); // Present(1, 0); with vsync
 
+	// double the wait, triple the fun todO TODO TODO TODO TODO TODO
     next_frame();
     wait_for_gpu();
+
+	UINT64 frequency = 0;
+	BreakOnFail(g.command_queue->GetTimestampFrequency(&frequency));
+	timer->CalculateTime(frequency);
 }
 
 void Renderer::frame()
@@ -87,38 +96,22 @@ void Renderer::frame()
     g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
     g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
 
-    static D3D12Timer timer(g.device);
     UINT num_vertices = 1000;
-    auto get_time = [&](PipelineState& pipe)
+    auto set_timer = [&](PipelineState& pipe, UINT index)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
         g.command_list->SetPipelineState(pipe);
 
-        //switch (pipe.getRootSignature()->get_type())
-        //{
-        //case RootSignature::Type::RootConstant:
-        //    // g.command_list->SetGraphicsRoot32BitConstant(i, rc) // vi skapar aldrig domma nånstans
-        //    break;
-        //case RootSignature::Type::RootConstantBuffer:
-        //    // g.command_list->SetGraphicsRootConstantBufferView(i, cb); // vi skapar aldrig domma nånstans
-        //break;
-        //case RootSignature::Type::TableConstantBuffer:
-        //    CD3DX12_GPU_DESCRIPTOR_HANDLE tableHandle(g.cbdHeap->GetGPUDescriptorHandleForHeapStart(), 0, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-        //    g.command_list->SetGraphicsRootDescriptorTable(0, tableHandle);
-        //    break;
-        //}
-
-        timer.Start(g.command_list);
+        timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
-        timer.Stop(g.command_list);
-        timer.CalculateTime();
-        printf("%lld\n", timer.GetDeltaTime()); // temp
-        return timer.GetDeltaTime();
+        timer->Stop(g.command_list, index);
     };
 
-    UINT64 time_root_buffer = get_time(pipe_root_buffer);
-    UINT64 time_table_buffer = get_time(pipe_table_buffer);
-    UINT64 time_root_constant = get_time(pipe_root_constant);
+	set_timer(pipe_root_buffer, RB_TIMER);
+	set_timer(pipe_table_buffer, TB_TIMER);
+	set_timer(pipe_root_constant, CB_TIMER);
+
+	timer->ResolveQuery(g.command_list);
 
     // editor->render();
 

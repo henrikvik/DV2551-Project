@@ -1,20 +1,19 @@
 #pragma once
 
 #include <d3d12.h>
+#include<vector>
 
 // D3D12 timer.
 class D3D12Timer {
 public:
     // Constructor.
-    D3D12Timer(ID3D12Device* pDevice)
+    D3D12Timer(ID3D12Device* pDevice, UINT timers)
     {
         mpDevice = pDevice;
 
         mActive = false;
-        mDeltaTime = 0;
-        mBeginTime = 0;
-        mEndTime = 0;
-        mQueryCount = 2;
+        mQueryCount = timers * 2;
+		mDeltaTimes.reserve(timers);
 
         D3D12_QUERY_HEAP_DESC queryHeapDesc;
         queryHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
@@ -67,21 +66,21 @@ public:
     }
 
     // Start timestamp.
-    void Start(ID3D12GraphicsCommandList* pCommandList)
+    void Start(ID3D12GraphicsCommandList* pCommandList, UINT index)
     {
         //assert(!mActive);
         mActive = true;
 
-        pCommandList->EndQuery(mQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, 0);
+        pCommandList->EndQuery(mQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, index * 2);
     }
 
     // Stop timestamp.
-    void Stop(ID3D12GraphicsCommandList* pCommandList)
+    void Stop(ID3D12GraphicsCommandList* pCommandList, UINT index)
     {
         //assert(mActive);
         mActive = false;
 
-        pCommandList->EndQuery(mQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, 1);
+        pCommandList->EndQuery(mQueryHeap, D3D12_QUERY_TYPE_TIMESTAMP, index * 2 + 1);
     }
 
     // Resolve query data. Write query to device memory. Make sure to wait for query to finsih before resolving data.
@@ -91,43 +90,43 @@ public:
     }
 
     // Calcluate time and map memory to CPU.
-    void CalculateTime()
+    void CalculateTime(UINT64 frequency)
     {
         // Copy to CPU.
-        UINT64 timeStamps[2];
+		mTimeStamps.reserve(mQueryCount);
         {
             void* mappedResource;
             D3D12_RANGE readRange{ 0, sizeof(UINT64) * mQueryCount };
             D3D12_RANGE writeRange{ 0, 0 };
             if (SUCCEEDED(mQueryResource->Map(0, &readRange, &mappedResource)))
             {
-                memcpy(&timeStamps, mappedResource, sizeof(UINT64) * mQueryCount);
+                memcpy(mTimeStamps.data(), mappedResource, sizeof(UINT64) * mQueryCount);
                 mQueryResource->Unmap(0, &writeRange);
             }
         }
 
-        mBeginTime = timeStamps[0];
-        mEndTime = timeStamps[1];
+		for (size_t i = 0; i < mQueryCount / 2; i++)
+		{
+			mDeltaTimes[i] = mTimeStamps[i * 2 + 1] - mTimeStamps[i * 2];
+			mDeltaTimes[i] /= frequency * 1000;
+		}
 
-        //			if (mBeginTime != 0) MessageBoxA(0, "ddd", "", 0);
-
-        mDeltaTime = mEndTime - mBeginTime;
     }
 
     // Get time from start to stop in nano seconds.
-    UINT64 GetDeltaTime()
+    UINT64 GetDeltaTime(UINT index)
     {
-        return mDeltaTime;
+        return mDeltaTimes[index];
     }
 
-    UINT64 GetEndTime()
+    UINT64 GetEndTime(UINT index)
     {
-        return mEndTime;
+        return mTimeStamps[index * 2];
     }
 
-    UINT64 GetBeginTime()
+    UINT64 GetBeginTime(UINT index)
     {
-        return mBeginTime;
+        return mTimeStamps[index * 2 + 1];
     }
 
     // Whether timer is active.
@@ -141,8 +140,8 @@ private:
     ID3D12QueryHeap* mQueryHeap;
     ID3D12Resource* mQueryResource;
     bool mActive;
-    UINT64 mDeltaTime;
-    UINT64 mBeginTime;
-    UINT64 mEndTime;
     unsigned int mQueryCount;
+	std::vector<UINT64> mTimeStamps;
+	std::vector<UINT64> mDeltaTimes;
+	
 };

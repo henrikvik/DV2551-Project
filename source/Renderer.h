@@ -3,6 +3,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <d3dx12.h>
+#include "D3D12Timer.hpp"
 
 class PipelineState;
 class RootSignature;
@@ -32,6 +33,7 @@ private:
     Editor* editor;
 	ID3D12Debug* debug;
     Window* window;
+	D3D12Timer* timer;
 
 	IDXGIAdapter1* findAdapter();
 	IDXGIFactory4* createFactory();
