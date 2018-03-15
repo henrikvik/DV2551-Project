@@ -75,7 +75,7 @@ void Renderer::render()
 
 	// double the wait, triple the fun todO TODO TODO TODO TODO TODO
     next_frame();
-    wait_for_gpu();
+    //wait_for_gpu();
 
 	UINT64 frequency = 0;
 	BreakOnFail(g.command_queue->GetTimestampFrequency(&frequency));

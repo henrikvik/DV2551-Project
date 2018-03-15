@@ -18,6 +18,10 @@ Window::~Window()
 	SDL_DestroyWindow(sdlWindow);
 }
 
+void Window::update()
+{
+}
+
 UINT Window::getWidth() const
 {
 	return width;
