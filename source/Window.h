@@ -19,6 +19,8 @@ private:
 public:
 	Window(const char *title, UINT width, UINT height);
 	~Window();
+    
+    void update();
 
 	HWND getWindowHandle() const;
 	UINT getWidth() const;

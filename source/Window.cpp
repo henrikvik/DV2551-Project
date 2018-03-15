@@ -1,4 +1,5 @@
 #include "Window.h"
+#include <stdio.h>
 
 Window::Window(const char *title, UINT width, UINT height)
 {
@@ -20,6 +21,14 @@ Window::~Window()
 
 void Window::update()
 {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_KEYDOWN:
+                printf("Nice key m8");
+                break;
+        }
+    }
 }
 
 UINT Window::getWidth() const
