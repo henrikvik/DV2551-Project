@@ -91,6 +91,7 @@ void Renderer::frame()
     static PipelineState pipe_root_buffer(&sign_root_buffer);
     static PipelineState pipe_table_buffer(&sign_table_buffer);
     static PipelineState pipe_root_constant(&sign_root_constant);
+
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
     BreakOnFail(g.command_allocator->Reset());
@@ -145,7 +146,7 @@ void Renderer::frame()
 
 	set_timer(pipe_root_buffer, RB_TIMER);
     set_timer(pipe_table_buffer, TB_TIMER);
-	set_timer(pipe_root_constant, CB_TIMER);
+	//set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);
 
