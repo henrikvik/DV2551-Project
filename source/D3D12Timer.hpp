@@ -13,7 +13,7 @@ public:
 
         mActive = false;
         mQueryCount = timers * 2;
-		mDeltaTimes.reserve(timers);
+		mDeltaTimes.resize(timers);
 
         D3D12_QUERY_HEAP_DESC queryHeapDesc;
         queryHeapDesc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;
@@ -93,7 +93,7 @@ public:
     void CalculateTime(UINT64 frequency)
     {
         // Copy to CPU.
-		mTimeStamps.reserve(mQueryCount);
+		mTimeStamps.resize(mQueryCount);
         {
             void* mappedResource;
             D3D12_RANGE readRange{ 0, sizeof(UINT64) * mQueryCount };
