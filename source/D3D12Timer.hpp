@@ -107,14 +107,13 @@ public:
 
 		for (size_t i = 0; i < mQueryCount / 2; i++)
 		{
-			mDeltaTimes[i] = mTimeStamps[i * 2 + 1] - mTimeStamps[i * 2];
-			mDeltaTimes[i] /= frequency / 100000;
+			mDeltaTimes[i] = (mTimeStamps[i * 2 + 1] - mTimeStamps[i * 2]) / double(frequency/1000);
 		}
 
     }
 
     // Get time from start to stop in nano seconds.
-    UINT64 GetDeltaTime(UINT index)
+    double GetDeltaTime(UINT index)
     {
         return mDeltaTimes[index];
     }
@@ -142,6 +141,6 @@ private:
     bool mActive;
     unsigned int mQueryCount;
 	std::vector<UINT64> mTimeStamps;
-	std::vector<UINT64> mDeltaTimes;
+	std::vector<double> mDeltaTimes;
 	
 };

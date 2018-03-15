@@ -15,11 +15,12 @@ Shader::Shader(UINT num)
 		shader_code << "cbuffer cb" << i << " : register(b" << i << ") { float v" << i << " = 0; }\n";
 	}
 
-	std::string mul = "v0";
+	std::string mul = "sqrt(v0)";
 	for (size_t i = 1; i < num; i++)
 	{
-		mul += " * v" + std::to_string(i);
+		mul = mul + "* v" + std::to_string(i);
 	}
+
 
 	shader_code << "struct Pixel"				   << std::endl;
 	shader_code << "{"							   << std::endl;
@@ -29,8 +30,8 @@ Shader::Shader(UINT num)
 	shader_code << "Pixel vs_main()"				 << std::endl;
 	shader_code << "{"								 << std::endl;
 	shader_code << "    Pixel p;"					 << std::endl;
-	shader_code << "    float v = " << mul << ";"	 << std::endl;
-	shader_code << "    p.pos = float4(v, v, v, v);" << std::endl;
+	shader_code << "    float v = 1 / (" << mul << ");" << std::endl;
+	shader_code << "    p.pos = float4(v, 0, 0, 1);" << std::endl;
 	shader_code << "    return p;"					 << std::endl;
 	shader_code << "}"								 << std::endl;
 
@@ -55,7 +56,7 @@ Shader::Shader(UINT num)
 		nullptr,
 		"vs_main",
 		"vs_5_1",
-		0,
+        D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
 		&vs,
 		&err
