@@ -5,6 +5,7 @@
 #include "PipelineState.h"
 #include "RootSignature.h"
 #include "D3D12Timer.hpp"
+#include "ConstantBuffer.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -94,6 +95,8 @@ void Renderer::frame()
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 
+
+
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
@@ -106,24 +109,38 @@ void Renderer::frame()
     g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
+    static ConstantBuffer buffers[32];
+    g.command_list->SetDescriptorHeaps(1, &g.cbdHeap);
 
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
+
+
+        /*switch (pipe.getRootSignature()->get_type())
+        {
+        case RootSignature::Type::RootConstantBuffer:
+            for (size_t i = 0; i < pipe.getRootSignature()->get_num(); i++)
+            {
+                g.command_list->SetGraphicsRootConstantBufferView(i, g.cbdHeap->GetGPUDescriptorHandleForHeapStart().ptr);
+
+            }
+        break;
+        }*/
+
+
         g.command_list->SetPipelineState(pipe);
 
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
-
-
     };
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 
 	set_timer(pipe_root_buffer, RB_TIMER);
-	//set_timer(pipe_table_buffer, TB_TIMER);
+	set_timer(pipe_table_buffer, TB_TIMER);
 	//set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);

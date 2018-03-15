@@ -12,7 +12,7 @@ Shader::Shader(UINT num)
 
 	for (size_t i = 0; i < num; i++)
 	{
-		shader_code << "cbuffer cb" << i << " : register(b" << i << ") { float v" << i << "; }\n";
+		shader_code << "cbuffer cb" << i << " : register(b" << i << ") { float v" << i << " = 0; }\n";
 	}
 
 	std::string mul = "v0";

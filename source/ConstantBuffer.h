@@ -11,7 +11,7 @@ class ConstantBuffer {
 		void createView(ID3D12DescriptorHeap *descHeap);
 		void uploadDataToResource();
 	public:
-		ConstantBuffer(UINT offset, UINT max, UINT width, ID3D12DescriptorHeap *descHeap);
+		ConstantBuffer(UINT offset = 0, UINT max = 100, UINT width = 1, ID3D12DescriptorHeap *descHeap = g.cbdHeap);
 		~ConstantBuffer();
 
 		UINT getMax() const;
