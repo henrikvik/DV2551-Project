@@ -42,6 +42,8 @@ Renderer::Renderer(Window* w)
 
     editor = new Editor(this);
     timer = new D3D12Timer(g.device, 5);
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
 }
 
 Renderer::~Renderer()
@@ -62,10 +64,13 @@ void Renderer::update()
 
 void Renderer::render()
 {
+
     frame();
-    
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
     ID3D12CommandList* temp[] = { g.command_list };
     g.command_queue->ExecuteCommandLists(_countof(temp), temp);
+    BreakOnFail(g.device->GetDeviceRemovedReason());
     BreakOnFail(g.swap_chain->Present(0, 0)); // Present(1, 0); with vsync
 
 	// double the wait, triple the fun todO TODO TODO TODO TODO TODO
@@ -86,6 +91,8 @@ void Renderer::frame()
     static PipelineState pipe_root_buffer(&sign_root_buffer);
     static PipelineState pipe_table_buffer(&sign_table_buffer);
     //static PipelineState pipe_root_constant(&sign_root_constant);
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
 
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
@@ -96,21 +103,25 @@ void Renderer::frame()
     CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
     g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
     g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
-    g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
 
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
-        g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
-        g.command_list->SetPipelineState(pipe);
+        //g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
+        //g.command_list->SetPipelineState(pipe);
 
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
     };
+    BreakOnFail(g.device->GetDeviceRemovedReason());
+
 
 	set_timer(pipe_root_buffer, RB_TIMER);
-	set_timer(pipe_table_buffer, TB_TIMER);
+	//set_timer(pipe_table_buffer, TB_TIMER);
 	//set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);

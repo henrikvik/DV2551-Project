@@ -39,7 +39,7 @@ PipelineState::PipelineState(RootSignature* rootSignature)
     pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
     pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
     pipelineStateDesc.SampleMask = UINT_MAX;
-    pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
     pipelineStateDesc.NumRenderTargets = 1;
     pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     pipelineStateDesc.SampleDesc.Count = 1;
