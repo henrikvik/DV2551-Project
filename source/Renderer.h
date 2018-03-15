@@ -5,6 +5,10 @@
 #include <d3dx12.h>
 #include "D3D12Timer.hpp"
 
+#define RB_TIMER 0
+#define TB_TIMER 1
+#define CB_TIMER 2
+
 class PipelineState;
 class RootSignature;
 class Window;
@@ -34,7 +38,8 @@ private:
 	ID3D12Debug* debug;
     Window* window;
 	D3D12Timer* timer;
-
+    UINT num_vertices;
+    UINT num_buffers;
 	IDXGIAdapter1* findAdapter();
 	IDXGIFactory4* createFactory();
 	void setupDebug();

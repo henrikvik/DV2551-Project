@@ -12,13 +12,11 @@
 
 static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
-#define RB_TIMER 0
-#define TB_TIMER 1
-#define CB_TIMER 2
-
 Renderer::Renderer(Window* w)
 {
     window = w;
+    num_vertices = 1000;
+    num_buffers = 32;
 
 #ifdef _DEBUG
     setupDebug();
@@ -42,9 +40,8 @@ Renderer::Renderer(Window* w)
     createRenderTagets();
 
     editor = new Editor(this);
-    timer = new D3D12Timer(g.device, 5);
+    timer = new D3D12Timer(g.device, 3);
     BreakOnFail(g.device->GetDeviceRemovedReason());
-
 }
 
 Renderer::~Renderer()
@@ -76,7 +73,7 @@ void Renderer::render()
 
 	// double the wait, triple the fun todO TODO TODO TODO TODO TODO
     next_frame();
-    //wait_for_gpu();
+    wait_for_gpu();
 
 	UINT64 frequency = 0;
 	BreakOnFail(g.command_queue->GetTimestampFrequency(&frequency));
@@ -85,7 +82,7 @@ void Renderer::render()
 
 void Renderer::frame()
 {
-    UINT num_buffers = 32;
+    static UINT num_buffers = 32;
     static RootSignature sign_root_buffer(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_table_buffer(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
@@ -108,12 +105,16 @@ void Renderer::frame()
 
 	ConstantBuffer::CreateDescHeap(g.cbdHeap, num_buffers);
     static ConstantBuffer buffers[32];
+
     float f = 1.f; // test
 
-    UINT num_vertices = 1000;
+    ID3D12DescriptorHeap *heaps[] = { g.cbdHeap };
+    g.command_list->SetDescriptorHeaps(ARRAYSIZE(heaps), heaps);
+
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
+        g.command_list->SetPipelineState(pipe);
 
         switch (pipe.getRootSignature()->get_type())
         {
@@ -137,15 +138,14 @@ void Renderer::frame()
             break;
         }
 
-        g.command_list->SetPipelineState(pipe);
-
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
     };
-    BreakOnFail(g.device->GetDeviceRemovedReason());
 
-	 set_timer(pipe_root_buffer, RB_TIMER);
+	BreakOnFail(g.device->GetDeviceRemovedReason());
+
+	set_timer(pipe_root_buffer, RB_TIMER);
     // set_timer(pipe_table_buffer, TB_TIMER);
 	// set_timer(pipe_root_constant, CB_TIMER);
 

@@ -16,14 +16,15 @@ ConstantBuffer::~ConstantBuffer()
 	SafeRelease(resource);
 }
 
-void ConstantBuffer::createConstantBuffer() {
+void ConstantBuffer::createConstantBuffer() 
+{
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 	resDesc.DepthOrArraySize = resDesc.Height = resDesc.MipLevels = 1;
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    resDesc.Width = sizeof(float) * width;
+    resDesc.Width = 256;
 
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -47,6 +48,7 @@ void ConstantBuffer::createView(ID3D12DescriptorHeap *descHeap)
 	D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 	desc.BufferLocation = resource->GetGPUVirtualAddress();
 	desc.SizeInBytes = ((sizeof(float) * width) + 255) & ~255; // magic
+
 	g.device->CreateConstantBufferView(&desc, cdh);
 }
 
