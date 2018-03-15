@@ -89,7 +89,7 @@ void Renderer::frame()
     static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
     static PipelineState pipe_root_buffer(&sign_root_buffer);
     static PipelineState pipe_table_buffer(&sign_table_buffer);
-    static PipelineState pipe_root_constant(&sign_root_constant);
+    //static PipelineState pipe_root_constant(&sign_root_constant);
 
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
@@ -114,7 +114,7 @@ void Renderer::frame()
 
 	set_timer(pipe_root_buffer, RB_TIMER);
 	set_timer(pipe_table_buffer, TB_TIMER);
-	set_timer(pipe_root_constant, CB_TIMER);
+	//set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);
 
