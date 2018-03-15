@@ -42,6 +42,8 @@ Renderer::Renderer(Window* w)
     editor = new Editor(this);
     timer = new D3D12Timer(g.device, 3);
     BreakOnFail(g.device->GetDeviceRemovedReason());
+
+	ConstantBuffer::CreateDescHeap(g.cbdHeap, num_buffers);
 }
 
 Renderer::~Renderer()
@@ -103,13 +105,9 @@ void Renderer::frame()
     g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
-	ConstantBuffer::CreateDescHeap(g.cbdHeap, num_buffers);
     static ConstantBuffer buffers[32];
 
     float f = 1.f; // test
-
-    ID3D12DescriptorHeap *heaps[] = { g.cbdHeap };
-    g.command_list->SetDescriptorHeaps(ARRAYSIZE(heaps), heaps);
 
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
@@ -146,8 +144,8 @@ void Renderer::frame()
 	BreakOnFail(g.device->GetDeviceRemovedReason());
 
 	set_timer(pipe_root_buffer, RB_TIMER);
-    // set_timer(pipe_table_buffer, TB_TIMER);
-	// set_timer(pipe_root_constant, CB_TIMER);
+    set_timer(pipe_table_buffer, TB_TIMER);
+	set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);
 
