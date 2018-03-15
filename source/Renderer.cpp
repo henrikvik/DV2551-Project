@@ -110,12 +110,14 @@ void Renderer::frame()
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
-        //g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
-        //g.command_list->SetPipelineState(pipe);
+        g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
+        g.command_list->SetPipelineState(pipe);
 
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
+
+
     };
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
