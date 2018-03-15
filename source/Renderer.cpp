@@ -91,11 +91,8 @@ void Renderer::frame()
     static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
     static PipelineState pipe_root_buffer(&sign_root_buffer);
     static PipelineState pipe_table_buffer(&sign_table_buffer);
-    //static PipelineState pipe_root_constant(&sign_root_constant);
+    static PipelineState pipe_root_constant(&sign_root_constant);
     BreakOnFail(g.device->GetDeviceRemovedReason());
-
-
-
 
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
@@ -109,26 +106,36 @@ void Renderer::frame()
     g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
+	ConstantBuffer::CreateDescHeap(g.cbdHeap, num_buffers);
     static ConstantBuffer buffers[32];
-    //g.command_list->SetDescriptorHeaps(1, &g.cbdHeap);
+    float f = 1.f; // test
 
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());
 
-
-        /*switch (pipe.getRootSignature()->get_type())
+        switch (pipe.getRootSignature()->get_type())
         {
-        case RootSignature::Type::RootConstantBuffer:
-            for (size_t i = 0; i < pipe.getRootSignature()->get_num(); i++)
+            case RootSignature::Type::RootConstantBuffer:
             {
-                g.command_list->SetGraphicsRootConstantBufferView(i, g.cbdHeap->GetGPUDescriptorHandleForHeapStart().ptr);
-
+                for (size_t i = 0; i < pipe.getRootSignature()->get_num(); i++)
+                {
+                    g.command_list->SetGraphicsRootConstantBufferView(i, buffers[i].getResource()->GetGPUVirtualAddress());
+                }
             }
-        break;
-        }*/
-
+            break;
+            case RootSignature::Type::RootConstant:
+                for (size_t j = 0; j < pipe.getRootSignature()->get_num(); j++) {
+                    g.command_list->SetGraphicsRoot32BitConstants(j, 1, &f, 0);
+                }
+            break;
+            case RootSignature::Type::TableConstantBuffer:
+                static ID3D12DescriptorHeap* heaps[] = { g.cbdHeap };
+                g.command_list->SetDescriptorHeaps(ARRAYSIZE(heaps), heaps);
+                g.command_list->SetGraphicsRootDescriptorTable(0, g.cbdHeap->GetGPUDescriptorHandleForHeapStart());
+            break;
+        }
 
         g.command_list->SetPipelineState(pipe);
 
@@ -138,10 +145,9 @@ void Renderer::frame()
     };
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
-
-	//set_timer(pipe_root_buffer, RB_TIMER);
-	set_timer(pipe_table_buffer, TB_TIMER);
-	//set_timer(pipe_root_constant, CB_TIMER);
+	 set_timer(pipe_root_buffer, RB_TIMER);
+    // set_timer(pipe_table_buffer, TB_TIMER);
+	// set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);
 

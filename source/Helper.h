@@ -117,6 +117,7 @@ struct G
 
 	// CB Desc Heap
 	ID3D12DescriptorHeap*		cbdHeap = nullptr;
+    UINT                        cbdHeapLen = 0;
 
     // Fence Resources
     ID3D12Fence*                fence = nullptr;

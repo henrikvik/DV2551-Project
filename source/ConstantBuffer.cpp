@@ -40,15 +40,14 @@ void ConstantBuffer::createConstantBuffer() {
 
 void ConstantBuffer::createView(ID3D12DescriptorHeap *descHeap)
 {
-	UINT size = g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	auto cdh = descHeap->GetCPUDescriptorHandleForHeapStart();
+	static UINT size = g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    auto cdh = descHeap->GetCPUDescriptorHandleForHeapStart();
+    cdh.ptr += g.cbdHeapLen++ * size;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 	desc.BufferLocation = resource->GetGPUVirtualAddress();
 	desc.SizeInBytes = ((sizeof(float) * width) + 255) & ~255; // magic
 	g.device->CreateConstantBufferView(&desc, cdh);
-
-	cdh.ptr += size;
 }
 
 void ConstantBuffer::uploadDataToResource()
