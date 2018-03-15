@@ -94,26 +94,8 @@ void Editor::render()
 {
     static float clearColor[4] = { 1, 1, 1, 1 };
 
-    // Rendering ImGui (Taken from the ImGui Sample)
-    D3D12_RESOURCE_BARRIER barrier = {};
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = g.render_target[g.frame_index];
-    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    g.command_list->Reset(g.command_allocator, NULL);
-    g.command_list->ResourceBarrier(1, &barrier);
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
-    g.command_list->ClearRenderTargetView(renderTargetViewHandle, (float*)&clearColor, 0, nullptr);
-    g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
     g.command_list->SetDescriptorHeaps(1, &g.font_heap);
     
     ImGui::Render();
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData());
-    
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-    g.command_list->ResourceBarrier(1, &barrier);
 }
