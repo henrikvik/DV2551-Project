@@ -100,6 +100,7 @@ void Renderer::frame()
     CD3DX12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle(g.render_target_heap->GetCPUDescriptorHandleForHeapStart(), g.frame_index, g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV));
     g.command_list->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
     g.command_list->ClearRenderTargetView(renderTargetViewHandle, clearColor, 0, nullptr);
+    g.command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
