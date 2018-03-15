@@ -131,6 +131,8 @@ void Renderer::frame()
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
+
+        timer;
     };
     BreakOnFail(g.device->GetDeviceRemovedReason());
 

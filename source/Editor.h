@@ -7,7 +7,8 @@ class Editor
 public:
     enum _WINDOW_FLAG
     {
-        MAIN_WINDOW = 1 << 1
+        MAIN_WINDOW     = 1 << 1,
+        SETTINGS_WINDOW = 1 << 2
     };
     
     Editor(Renderer* _renderer);
@@ -15,6 +16,7 @@ public:
 
     void update();
     void update_main_window();
+    void update_settings_window();
 
     void render();
 
