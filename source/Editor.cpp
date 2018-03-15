@@ -51,9 +51,9 @@ void Editor::update_main_window()
 
         // Column 2
         ImGui::NextColumn();
-        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(RB_TIMER));
-        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(CB_TIMER));
-        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(TB_TIMER));
+        ImGui::Text("%f ms", renderer->timer->GetDeltaTime(RB_TIMER));
+        ImGui::Text("%f ms", renderer->timer->GetDeltaTime(CB_TIMER));
+        ImGui::Text("%f ms", renderer->timer->GetDeltaTime(TB_TIMER));
     }
     ImGui::End();
 }
@@ -63,7 +63,7 @@ void Editor::update_settings_window()
     if (ImGui::Begin("Editor"))
     {
         ImGui::Text("Settings");
-        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 0, 100000);
+        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 10000, 1000000);
         ImGui::SliderInt("Number of Buffers", (int*)&renderer->num_buffers, 0, 64);
         if (ImGui::Button("Run")) printf("Not implemented.\n");
         if (ImGui::Button("Run & Save As")) printf("Not implemented.\n");
