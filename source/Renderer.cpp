@@ -12,13 +12,11 @@
 
 static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
-#define RB_TIMER 0
-#define TB_TIMER 1
-#define CB_TIMER 2
-
 Renderer::Renderer(Window* w)
 {
     window = w;
+    num_vertices = 1000;
+    num_buffers = 32;
 
 #ifdef _DEBUG
     setupDebug();
@@ -85,7 +83,6 @@ void Renderer::render()
 
 void Renderer::frame()
 {
-    UINT num_buffers = 32;
     static RootSignature sign_root_buffer(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_table_buffer(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
@@ -112,7 +109,6 @@ void Renderer::frame()
     static ConstantBuffer buffers[32];
     //g.command_list->SetDescriptorHeaps(1, &g.cbdHeap);
 
-    UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
     {
         g.command_list->SetGraphicsRootSignature(pipe.getRootSignature()->get_ptr());

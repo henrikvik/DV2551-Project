@@ -21,8 +21,6 @@ Editor::Editor(Renderer* _renderer)
     renderer = _renderer;
     wnd_flags = 0;
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW);
-    TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::ROOT_WINDOW);
-    TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::PIPE_WINDOW);
 }
 
 Editor::~Editor() 
@@ -36,8 +34,6 @@ void Editor::update()
     ImGui_ImplDX12_NewFrame(g.command_list);
 
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW)) update_main_window();
-    if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::ROOT_WINDOW)) update_root_window();
-    if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::PIPE_WINDOW)) update_pipe_window();
 }
 
 void Editor::update_main_window()
@@ -45,47 +41,25 @@ void Editor::update_main_window()
     if (ImGui::Begin("Editor - Main"))
     {
         ImGui::Columns(3, "cols", true);
-        ImGui::Text("Pipeline State");
 
-        for (int i = 0; i < 5; i++)
-        {
-            std::string str = "PS_" + std::to_string(i);
-            ImGui::Text(str.c_str());
-            ImGui::SameLine();
-            ImGui::Button("Edit");
-        }
+        // Column 1
+        ImGui::Text("Settings");
+        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 0, 10000);
+        ImGui::SliderInt("Number of Buffers", (int*)&renderer->num_buffers, 0, 64);
+        if (ImGui::Button("Run")) printf("Not implemented.\n");
+        if (ImGui::Button("Run & Save As")) printf("Not implemented.\n");
 
-        for (int i = 0; i < 5; i++)
-        {
-            std::string str = "RS_" + std::to_string(i);
-            ImGui::Text(str.c_str());
-            ImGui::SameLine();
-            ImGui::Button("Edit");
-        }
-
+        // Column 2
         ImGui::NextColumn();
-        ImGui::Text("Experiment");
-        ImGui::Button("Validate");
-        ImGui::Button("Run");
-        ImGui::Button("Run & Save As");
-    }
-    ImGui::End();
-}
+        ImGui::Text("Root Constants");
+        ImGui::Text("Root Constant Buffer");
+        ImGui::Text("Descriptor Table");
 
-void Editor::update_root_window()
-{
-    if (ImGui::Begin("Editor - Sub"))
-    {
-
-    }
-    ImGui::End();
-}
-
-void Editor::update_pipe_window()
-{
-    if (ImGui::Begin("Editor - Pipeline State"))
-    {
-
+        // Column 3
+        ImGui::NextColumn();
+        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(RB_TIMER));
+        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(CB_TIMER));
+        ImGui::Text("%lld ms", renderer->timer->GetDeltaTime(TB_TIMER));
     }
     ImGui::End();
 }
