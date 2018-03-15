@@ -110,7 +110,7 @@ void Renderer::frame()
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
     static ConstantBuffer buffers[32];
-    g.command_list->SetDescriptorHeaps(1, &g.cbdHeap);
+    //g.command_list->SetDescriptorHeaps(1, &g.cbdHeap);
 
     UINT num_vertices = 1000;
     auto set_timer = [&](PipelineState& pipe, UINT index)
@@ -139,7 +139,7 @@ void Renderer::frame()
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 
-	set_timer(pipe_root_buffer, RB_TIMER);
+	//set_timer(pipe_root_buffer, RB_TIMER);
 	set_timer(pipe_table_buffer, TB_TIMER);
 	//set_timer(pipe_root_constant, CB_TIMER);
 
