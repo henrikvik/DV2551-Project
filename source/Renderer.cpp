@@ -31,7 +31,7 @@ Renderer::Renderer(Window* w)
     BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap)));
 
 #ifdef _DEBUG
-	setupDebug(); // this kills the crab
+	// setupDebug(); // this kills the crab
 #endif
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
@@ -42,12 +42,14 @@ Renderer::Renderer(Window* w)
     createRenderTagets();
 
     editor = new Editor(this);
+    timer = new D3D12Timer(g.device, 5);
 }
 
 Renderer::~Renderer()
 {
 	SafeRelease(g.device);
     SafeDelete(editor);
+    SafeDelete(timer);
 
 #ifdef _DEBUG
 	SafeRelease(debug);
