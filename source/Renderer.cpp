@@ -60,7 +60,7 @@ Renderer::~Renderer()
 
 void Renderer::update()
 {
- //   editor->update();
+    editor->update();
 }
 
 void Renderer::render()
@@ -145,7 +145,7 @@ void Renderer::frame()
 
 	timer->ResolveQuery(g.command_list);
 
-    // editor->render();
+    editor->render();
 
     g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
     BreakOnFail(g.command_list->Close());
