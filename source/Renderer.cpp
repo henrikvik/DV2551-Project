@@ -40,7 +40,7 @@ Renderer::Renderer(Window* w)
     createRenderTagets();
 
     editor = new Editor(this);
-    timer = new D3D12Timer(g.device, 5);
+    timer = new D3D12Timer(g.device, 3);
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 }
@@ -132,11 +132,12 @@ void Renderer::frame()
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
     };
+
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 
-	//set_timer(pipe_root_buffer, RB_TIMER);
-	set_timer(pipe_table_buffer, TB_TIMER);
+	set_timer(pipe_root_buffer, RB_TIMER);
+	// set_timer(pipe_table_buffer, TB_TIMER);
 	//set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);

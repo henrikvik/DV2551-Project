@@ -63,7 +63,7 @@ void Editor::update_settings_window()
     if (ImGui::Begin("Editor"))
     {
         ImGui::Text("Settings");
-        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 0, 10000);
+        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 0, 100000);
         ImGui::SliderInt("Number of Buffers", (int*)&renderer->num_buffers, 0, 64);
         if (ImGui::Button("Run")) printf("Not implemented.\n");
         if (ImGui::Button("Run & Save As")) printf("Not implemented.\n");
