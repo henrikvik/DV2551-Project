@@ -16,14 +16,15 @@ ConstantBuffer::~ConstantBuffer()
 	SafeRelease(resource);
 }
 
-void ConstantBuffer::createConstantBuffer() {
+void ConstantBuffer::createConstantBuffer() 
+{
 	D3D12_RESOURCE_DESC resDesc = {};
 	resDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 	resDesc.DepthOrArraySize = resDesc.Height = resDesc.MipLevels = 1;
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    resDesc.Width = sizeof(float) * width;
+    resDesc.Width = 256;
 
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -40,15 +41,18 @@ void ConstantBuffer::createConstantBuffer() {
 
 void ConstantBuffer::createView(ID3D12DescriptorHeap *descHeap)
 {
+    static UINT counter = 0;
 	UINT size = g.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	auto cdh = descHeap->GetCPUDescriptorHandleForHeapStart();
+    CD3DX12_CPU_DESCRIPTOR_HANDLE cdh(descHeap->GetCPUDescriptorHandleForHeapStart());
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 	desc.BufferLocation = resource->GetGPUVirtualAddress();
 	desc.SizeInBytes = ((sizeof(float) * width) + 255) & ~255; // magic
-	g.device->CreateConstantBufferView(&desc, cdh);
 
-	cdh.ptr += size;
+	cdh.Offset(counter, size);
+    counter++;
+
+	g.device->CreateConstantBufferView(&desc, cdh);
 }
 
 void ConstantBuffer::uploadDataToResource()
