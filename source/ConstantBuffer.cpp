@@ -23,7 +23,7 @@ void ConstantBuffer::createConstantBuffer() {
 	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 	resDesc.SampleDesc.Count = 1;
 	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resDesc.Width = width;
+    resDesc.Width = sizeof(float) * width;
 
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -45,7 +45,7 @@ void ConstantBuffer::createView(ID3D12DescriptorHeap *descHeap)
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 	desc.BufferLocation = resource->GetGPUVirtualAddress();
-	desc.SizeInBytes = (sizeof(width) + 255) & ~255; // magic
+	desc.SizeInBytes = ((sizeof(float) * width) + 255) & ~255; // magic
 	g.device->CreateConstantBufferView(&desc, cdh);
 
 	cdh.ptr += size;
