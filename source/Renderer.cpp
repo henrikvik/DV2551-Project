@@ -19,6 +19,14 @@ Renderer::Renderer(Window* w)
 {
     window = w;
 
+#ifdef _DEBUG
+    ID3D12Debug* debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+    {
+        debugController->EnableDebugLayer();
+    }
+#endif
+
 	auto adapter = findAdapter();
 	D3D12CreateDevice(adapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g.device));
 	SafeRelease(adapter);
@@ -29,11 +37,6 @@ Renderer::Renderer(Window* w)
     desc.NumDescriptors = 1;
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     BreakOnFail(g.device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&g.font_heap)));
-
-#ifdef _DEBUG
-	// setupDebug(); // this kills the crab
-#endif
-    BreakOnFail(g.device->GetDeviceRemovedReason());
 
     build_command_resourses();
     g.swap_chain = static_cast<IDXGISwapChain3*>(createSwapChain(*w, createFactory(), g.command_queue));
@@ -67,7 +70,7 @@ void Renderer::render()
     
     ID3D12CommandList* temp[] = { g.command_list };
     g.command_queue->ExecuteCommandLists(_countof(temp), temp);
-    g.swap_chain->Present(0, 0); // Present(1, 0); with vsync
+    BreakOnFail(g.swap_chain->Present(0, 0)); // Present(1, 0); with vsync
 
 	// double the wait, triple the fun todO TODO TODO TODO TODO TODO
     next_frame();
