@@ -28,6 +28,15 @@ void Window::update()
             case SDL_KEYDOWN:
                 printf("Nice key m8\n");
                 break;
+            case SDL_WINDOWEVENT:
+            {
+                switch (event.window.event) {
+                case SDL_WINDOWEVENT_CLOSE:
+                    exit(0);
+                    break;
+                }
+                break;
+            }
         }
     }
 }
