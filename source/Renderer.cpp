@@ -59,7 +59,7 @@ Renderer::~Renderer()
 
 void Renderer::update()
 {
- //   editor->update();
+    editor->update();
 }
 
 void Renderer::render()
@@ -116,19 +116,17 @@ void Renderer::frame()
         timer->Start(g.command_list, index);
         g.command_list->DrawInstanced(num_vertices, 1, 0, 0);
         timer->Stop(g.command_list, index);
-
-
     };
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 
 	set_timer(pipe_root_buffer, RB_TIMER);
 	//set_timer(pipe_table_buffer, TB_TIMER);
-	//set_timer(pipe_root_constant, CB_TIMER);
+	// set_timer(pipe_root_constant, CB_TIMER);
 
 	timer->ResolveQuery(g.command_list);
 
-    // editor->render();
+    editor->render();
 
     g.command_list->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(g.render_target[g.frame_index], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
     BreakOnFail(g.command_list->Close());
