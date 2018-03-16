@@ -11,6 +11,7 @@
 
 Editor::Editor(Renderer* _renderer)
 {
+    testing = false;
     test_timer_sec = 2.f;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -32,6 +33,8 @@ Editor::~Editor()
     ImGui::DestroyContext();
 }
 
+std::vector<std::vector<double>> doubles;
+std::vector<double> line;
 void Editor::update()
 {
     ImGui_ImplDX12_NewFrame(g.command_list);
@@ -39,6 +42,15 @@ void Editor::update()
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW))       update_main_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
+
+    if (testing) 
+    {
+        line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
+        doubles.push_back(line);
+        line.clear();
+    }
 }
 
 void Editor::update_main_window()
@@ -71,17 +83,6 @@ void Editor::update_settings_window()
         if (ImGui::DragInt("Buffer Count", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
             renderer->restart();
         
-        if (ImGui::Button("Stop")) {
-            std::vector<std::vector<double>> doubles;
-            std::vector<double> line;
-            line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
-            line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
-            line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
-            doubles.push_back(line);
-            doubles.push_back(line);
-            ExclWriter::writeToFile("test.txt", doubles);
-        }
-
         if (ImGui::Button("Pause"))  
             renderer->stop();
         
@@ -105,8 +106,10 @@ void Editor::update_popup_save_as()
 
         if (ImGui::Button("Run & Save"))
         {
-            // renderer->run_test_print(buffer, test_timer_sec * 1000.f);
+            testing = true;
+            ExclWriter::writeToFile(buffer, doubles);
             TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
+            doubles.clear();
         }
 
         if (ImGui::Button("Go Back")) 
