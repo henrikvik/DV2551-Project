@@ -1,6 +1,9 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include <ctime>
+#include <vector>
+
 class Renderer;
 class Editor
 {
@@ -28,6 +31,9 @@ private:
     double      test_timer_sec;
     float       testing_timer;
     bool        testing;
+    clock_t     begin;
+    std::string      name;
+    std::vector<std::vector<double>> doubles;
 };
 
 #endif // !EDITOR_H
