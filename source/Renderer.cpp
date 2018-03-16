@@ -94,14 +94,6 @@ void Renderer::render()
 
 void Renderer::frame()
 {
-    static RootSignature sign_root_buffer(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
-    static RootSignature sign_table_buffer(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
-    static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
-    static PipelineState pipe_root_buffer(&sign_root_buffer);
-    static PipelineState pipe_table_buffer(&sign_table_buffer);
-    static PipelineState pipe_root_constant(&sign_root_constant);
-    BreakOnFail(g.device->GetDeviceRemovedReason());
-
     BreakOnFail(g.command_allocator->Reset());
     BreakOnFail(g.command_list->Reset(g.command_allocator, nullptr));
 
@@ -154,9 +146,9 @@ void Renderer::frame()
 
     if (running)
     {
-        set_timer(pipe_root_buffer, RB_TIMER);
-        set_timer(pipe_table_buffer, TB_TIMER);
-        set_timer(pipe_root_constant, CB_TIMER);
+        set_timer(*pipe_root_buffer, RB_TIMER);
+        set_timer(*pipe_table_buffer, TB_TIMER);
+        set_timer(*pipe_root_constant, CB_TIMER);
         timer->ResolveQuery(g.command_list);
     }
 
