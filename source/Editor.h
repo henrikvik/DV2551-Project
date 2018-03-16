@@ -28,7 +28,6 @@ public:
 private:
     Renderer*   renderer;
     long        wnd_flags;
-    double      test_timer_sec;
     int         testing_timer;
     bool        testing;
     clock_t     begin;

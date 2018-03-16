@@ -12,7 +12,7 @@
 Editor::Editor(Renderer* _renderer)
 {
     testing = false;
-    test_timer_sec = 1;
+    testing_timer = 1;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
@@ -43,7 +43,7 @@ void Editor::update()
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
 
-    if (begin != 0 && begin + test_timer_sec * 1000 < clock()) 
+    if (begin != 0 && begin + (testing_timer * 1000.f) < clock())
     {
         begin = 0;
         ExclWriter::writeToFile(name, doubles);
@@ -93,7 +93,7 @@ void Editor::update_settings_window()
         if (ImGui::Button("Resume"))   
             renderer->resume();
 
-        ImGui::SliderInt("Testing duration (seconds)", (int*)&test_timer_sec, 1, 10);
+        ImGui::SliderInt("Testing duration (seconds)", &testing_timer, 1, 10);
         if (ImGui::Button("Run Test & Print To File"))
             TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
     }
