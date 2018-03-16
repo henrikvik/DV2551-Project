@@ -12,7 +12,7 @@
 Editor::Editor(Renderer* _renderer)
 {
     testing = false;
-    test_timer_sec = 2.f;
+    testing_timer = 1;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
@@ -23,6 +23,8 @@ Editor::Editor(Renderer* _renderer)
 
     renderer = _renderer;
     wnd_flags = 0;
+    name = "Hejpappahadetbrasesp.txt";
+
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW);
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW);
 }
@@ -33,8 +35,6 @@ Editor::~Editor()
     ImGui::DestroyContext();
 }
 
-std::vector<std::vector<double>> doubles;
-std::vector<double> line;
 void Editor::update()
 {
     ImGui_ImplDX12_NewFrame(g.command_list);
@@ -43,13 +43,11 @@ void Editor::update()
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
 
-    if (testing) 
+    if (begin != 0 && begin + (testing_timer * 1000.f) < clock())
     {
-        line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
-        line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
-        line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
-        doubles.push_back(line);
-        line.clear();
+        begin = 0;
+        ExclWriter::writeToFile(name, doubles);
+        doubles.clear();
     }
 }
 
@@ -69,6 +67,12 @@ void Editor::update_main_window()
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(RB_TIMER));
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(CB_TIMER));
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(TB_TIMER));
+
+        std::vector<double> line;
+        line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
+        doubles.push_back(line);
     }
     ImGui::End();
 }
@@ -89,7 +93,7 @@ void Editor::update_settings_window()
         if (ImGui::Button("Resume"))   
             renderer->resume();
 
-        ImGui::SliderInt("Testing duration (seconds)", (int*)&test_timer_sec, 1.f, 10.f);
+        ImGui::SliderInt("Testing duration (seconds)", &testing_timer, 1, 10);
         if (ImGui::Button("Run Test & Print To File"))
             TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
     }
@@ -100,14 +104,12 @@ void Editor::update_popup_save_as()
 {
     if (ImGui::Begin("Run Test"))
     {
-        static std::string buffer;
-        buffer.resize(100);
-        ImGui::InputText("filename", &buffer[0], 100, ImGuiInputTextFlags_CharsNoBlank);
+        name.resize(100);
+        ImGui::InputText("filename", &name[0], 100, ImGuiInputTextFlags_CharsNoBlank);
 
         if (ImGui::Button("Run & Save"))
         {
-            testing = true;
-            ExclWriter::writeToFile(buffer, doubles);
+            begin = clock();
             TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
             doubles.clear();
         }
