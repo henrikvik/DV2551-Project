@@ -46,7 +46,8 @@ void Editor::update()
     if (begin != 0 && begin + testing_timer * CLOCKS_PER_SEC < clock())
     {
         begin = 0;
-        ExclWriter::writeToFile(name, doubles);
+        static const std::string headers[] = { "TS", "RB", "RC", "TB" };
+        ExclWriter::writeToFile(name, ARRAYSIZE(headers), headers, doubles);
         doubles.clear();
     }
 }
