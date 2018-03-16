@@ -17,13 +17,13 @@ class Renderer
 public:
     friend class Editor;
 
-	Renderer(Window* w);
-	virtual ~Renderer();
+    Renderer(Window* w);
+    virtual ~Renderer();
     void update();
     void render();
     void frame();
 
-	IDXGISwapChain1* createSwapChain(Window const &window, IDXGIFactory4 *factory, ID3D12CommandQueue *queue);
+    IDXGISwapChain1* createSwapChain(Window const &window, IDXGIFactory4 *factory, ID3D12CommandQueue *queue);
 private:
 
     void build_command_resourses();
@@ -34,13 +34,25 @@ private:
     void wait_for_gpu();
     void next_frame();
 
+    void stop();
+    void resume();
+    void restart();
+
+    bool running;
     Editor* editor;
-	ID3D12Debug* debug;
+    ID3D12Debug* debug;
     Window* window;
-	D3D12Timer* timer;
+    D3D12Timer* timer;
     UINT num_vertices;
     UINT num_buffers;
-	IDXGIAdapter1* findAdapter();
-	IDXGIFactory4* createFactory();
-	void setupDebug();
+    IDXGIAdapter1* findAdapter();
+    IDXGIFactory4* createFactory();
+    void setupDebug();
+
+    RootSignature* sign_root_buffer;
+    RootSignature* sign_table_buffer;
+    RootSignature* sign_root_constant;
+    PipelineState* pipe_root_buffer;
+    PipelineState* pipe_table_buffer;
+    PipelineState* pipe_root_constant;
 };

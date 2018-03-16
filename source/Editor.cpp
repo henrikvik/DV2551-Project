@@ -7,9 +7,12 @@
 #include "ImGui\imgui_impl_dx12.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include "ExclWriter.h"
 
 Editor::Editor(Renderer* _renderer)
 {
+    testing = false;
+    test_timer_sec = 2.f;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
@@ -30,12 +33,24 @@ Editor::~Editor()
     ImGui::DestroyContext();
 }
 
+std::vector<std::vector<double>> doubles;
+std::vector<double> line;
 void Editor::update()
 {
     ImGui_ImplDX12_NewFrame(g.command_list);
 
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW))       update_main_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
+    if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
+
+    if (testing) 
+    {
+        line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
+        line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
+        doubles.push_back(line);
+        line.clear();
+    }
 }
 
 void Editor::update_main_window()
@@ -63,10 +78,42 @@ void Editor::update_settings_window()
     if (ImGui::Begin("Editor"))
     {
         ImGui::Text("Settings");
-        ImGui::SliderInt("Number of Vertices", (int*)&renderer->num_vertices, 10000, 1000000);
-        ImGui::SliderInt("Number of Buffers", (int*)&renderer->num_buffers, 0, 64);
-        if (ImGui::Button("Run")) printf("Not implemented.\n");
-        if (ImGui::Button("Run & Save As")) printf("Not implemented.\n");
+        ImGui::DragInt("Vertex Count", (int*)&renderer->num_vertices, 1000.f, 10000, 1000000);
+        
+        if (ImGui::DragInt("Buffer Count", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
+            renderer->restart();
+        
+        if (ImGui::Button("Pause"))  
+            renderer->stop();
+        
+        if (ImGui::Button("Resume"))   
+            renderer->resume();
+
+        ImGui::SliderInt("Testing duration (seconds)", (int*)&test_timer_sec, 1.f, 10.f);
+        if (ImGui::Button("Run Test & Print To File"))
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
+    }
+    ImGui::End();
+}
+
+void Editor::update_popup_save_as()
+{
+    if (ImGui::Begin("Run Test"))
+    {
+        static std::string buffer;
+        buffer.resize(100);
+        ImGui::InputText("filename", &buffer[0], 100, ImGuiInputTextFlags_CharsNoBlank);
+
+        if (ImGui::Button("Run & Save"))
+        {
+            testing = true;
+            ExclWriter::writeToFile(buffer, doubles);
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
+            doubles.clear();
+        }
+
+        if (ImGui::Button("Go Back")) 
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
     }
     ImGui::End();
 }
