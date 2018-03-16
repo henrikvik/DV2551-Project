@@ -64,8 +64,8 @@ void Editor::update_main_window()
 
         // Column 2
         ImGui::NextColumn();
-        ImGui::Text("%f ms", renderer->timer->GetDeltaTime(RB_TIMER));
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(RC_TIMER));
+        ImGui::Text("%f ms", renderer->timer->GetDeltaTime(RB_TIMER));
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(TB_TIMER));
 
         std::vector<double> line;
