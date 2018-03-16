@@ -10,6 +10,7 @@
 
 Editor::Editor(Renderer* _renderer)
 {
+    test_timer_sec = 2.f;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.NavFlags |= ImGuiNavFlags_EnableKeyboard;  // Enable Keyboard Controls
@@ -36,6 +37,7 @@ void Editor::update()
 
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW))       update_main_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
+    if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
 }
 
 void Editor::update_main_window()
@@ -73,6 +75,30 @@ void Editor::update_settings_window()
         
         if (ImGui::Button("Run"))   
             renderer->resume();
+
+        ImGui::SliderInt("Testing duration (seconds)", (int*)&test_timer_sec, 1.f, 10.f);
+        if (ImGui::Button("Run Test & Print To File"))
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
+    }
+    ImGui::End();
+}
+
+void Editor::update_popup_save_as()
+{
+    if (ImGui::Begin("Run Test"))
+    {
+        static std::string buffer;
+        buffer.resize(100);
+        ImGui::InputText("filename", &buffer[0], 100, ImGuiInputTextFlags_CharsNoBlank);
+
+        if (ImGui::Button("Run & Save"))
+        {
+            // renderer->run_test_print(buffer, test_timer_sec * 1000.f);
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
+        }
+
+        if (ImGui::Button("Go Back")) 
+            TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW);
     }
     ImGui::End();
 }
