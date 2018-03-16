@@ -65,9 +65,9 @@ void Editor::update_settings_window()
     if (ImGui::Begin("Editor"))
     {
         ImGui::Text("Settings");
-        ImGui::DragInt("Number of Vertices", (int*)&renderer->num_vertices, 1000.f, 10000, 1000000);
+        ImGui::DragInt("Vertex Count", (int*)&renderer->num_vertices, 1000.f, 10000, 1000000);
         
-        if (ImGui::DragInt("Number of Buffers", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
+        if (ImGui::DragInt("Buffer Count", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
             renderer->restart();
         
         if (ImGui::Button("Pause"))  
