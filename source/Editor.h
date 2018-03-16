@@ -29,7 +29,7 @@ private:
     Renderer*   renderer;
     long        wnd_flags;
     double      test_timer_sec;
-    float       testing_timer;
+    int         testing_timer;
     bool        testing;
     clock_t     begin;
     std::string      name;
