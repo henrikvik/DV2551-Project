@@ -23,7 +23,7 @@ Editor::Editor(Renderer* _renderer)
 
     renderer = _renderer;
     wnd_flags = 0;
-    name = "Hejpappahadetbrasespå.txt";
+    name = "Hejpappahadetbrasesp.txt";
 
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::MAIN_WINDOW);
     TOGGLE_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW);
