@@ -70,10 +70,10 @@ void Editor::update_settings_window()
         if (ImGui::DragInt("Number of Buffers", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
             renderer->restart();
         
-        if (ImGui::Button("Stop"))  
+        if (ImGui::Button("Pause"))  
             renderer->stop();
         
-        if (ImGui::Button("Run"))   
+        if (ImGui::Button("Resume"))   
             renderer->resume();
 
         ImGui::SliderInt("Testing duration (seconds)", (int*)&test_timer_sec, 1.f, 10.f);
