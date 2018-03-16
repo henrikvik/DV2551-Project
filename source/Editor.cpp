@@ -43,7 +43,7 @@ void Editor::update()
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SETTINGS_WINDOW))   update_settings_window();
     if (CHECK_FLAG(wnd_flags, _WINDOW_FLAG::SAVE_AS_WINDOW))    update_popup_save_as();
 
-    if (begin != 0 && begin + (testing_timer * 1000.f) < clock())
+    if (begin != 0 && begin + testing_timer * CLOCKS_PER_SEC < clock())
     {
         begin = 0;
         ExclWriter::writeToFile(name, doubles);
@@ -69,6 +69,7 @@ void Editor::update_main_window()
         ImGui::Text("%f ms", renderer->timer->GetDeltaTime(TB_TIMER));
 
         std::vector<double> line;
+        line.push_back((double) clock() / CLOCKS_PER_SEC);
         line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
         line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
         line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
