@@ -7,6 +7,7 @@
 #include "ImGui\imgui_impl_dx12.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include "ExclWriter.h"
 
 Editor::Editor(Renderer* _renderer)
 {
@@ -68,8 +69,17 @@ void Editor::update_settings_window()
         if (ImGui::DragInt("Number of Buffers", (int*)&renderer->num_buffers, 1.f, 1, 32)) 
             renderer->restart();
         
-        if (ImGui::Button("Stop"))  
+        if (ImGui::Button("Stop")) {
             renderer->stop();
+            std::vector<std::vector<double>> doubles;
+            std::vector<double> line;
+            line.push_back(renderer->timer->GetDeltaTime(RB_TIMER));
+            line.push_back(renderer->timer->GetDeltaTime(CB_TIMER));
+            line.push_back(renderer->timer->GetDeltaTime(TB_TIMER));
+            doubles.push_back(line);
+            doubles.push_back(line);
+            ExclWriter::writeToFile("test.txt", doubles);
+        }
         
         if (ImGui::Button("Run"))   
             renderer->resume();
