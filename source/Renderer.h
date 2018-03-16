@@ -7,7 +7,7 @@
 
 #define RB_TIMER 0
 #define TB_TIMER 1
-#define CB_TIMER 2
+#define RC_TIMER 2
 
 class PipelineState;
 class RootSignature;
