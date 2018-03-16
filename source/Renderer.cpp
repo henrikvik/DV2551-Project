@@ -14,9 +14,16 @@ static const FLOAT clearColor[4] = { 0, 1, 1, 1 };
 
 Renderer::Renderer(Window* w)
 {
-    window = w;
-    num_vertices = 1000;
-    num_buffers = 32;
+    sign_root_buffer    = nullptr;
+    sign_table_buffer   = nullptr;
+    sign_root_constant  = nullptr;
+    pipe_root_buffer    = nullptr;
+    pipe_table_buffer   = nullptr;
+    pipe_root_constant  = nullptr;
+    running             = true;
+    window              = w;
+    num_vertices        = 1000;
+    num_buffers         = 32;
 
 #ifdef _DEBUG
     setupDebug();
@@ -44,6 +51,9 @@ Renderer::Renderer(Window* w)
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
 	ConstantBuffer::CreateDescHeap(g.cbdHeap, num_buffers);
+
+    // Creating the pipeline states and root signs
+    restart();
 }
 
 Renderer::~Renderer()
@@ -84,7 +94,6 @@ void Renderer::render()
 
 void Renderer::frame()
 {
-    static UINT num_buffers = 32;
     static RootSignature sign_root_buffer(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_table_buffer(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
     static RootSignature sign_root_constant(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
@@ -143,11 +152,13 @@ void Renderer::frame()
 
 	BreakOnFail(g.device->GetDeviceRemovedReason());
 
-	set_timer(pipe_root_buffer, RB_TIMER);
-    set_timer(pipe_table_buffer, TB_TIMER);
-	set_timer(pipe_root_constant, CB_TIMER);
-
-	timer->ResolveQuery(g.command_list);
+    if (running)
+    {
+        set_timer(pipe_root_buffer, RB_TIMER);
+        set_timer(pipe_table_buffer, TB_TIMER);
+        set_timer(pipe_root_constant, CB_TIMER);
+        timer->ResolveQuery(g.command_list);
+    }
 
     editor->render();
 
@@ -215,6 +226,33 @@ void Renderer::next_frame()
         WaitForSingleObjectEx(g.fence_event, INFINITE, FALSE);
     }
     g.fence_value = currentFenceValue + 1;
+}
+
+void Renderer::stop()
+{
+    running = false;
+}
+
+void Renderer::resume()
+{
+    running = true;
+}
+
+void Renderer::restart()
+{
+    SafeDelete(sign_root_buffer);
+    SafeDelete(sign_table_buffer);
+    SafeDelete(sign_root_constant);
+    SafeDelete(pipe_root_buffer);
+    SafeDelete(pipe_table_buffer);
+    SafeDelete(pipe_root_constant);
+
+    sign_root_buffer    = new RootSignature(RootSignature::Type::RootConstantBuffer, num_buffers, RootSignature::Visiblity::All);
+    sign_table_buffer   = new RootSignature(RootSignature::Type::TableConstantBuffer, num_buffers, RootSignature::Visiblity::All);
+    sign_root_constant  = new RootSignature(RootSignature::Type::RootConstant, num_buffers, RootSignature::Visiblity::All);
+    pipe_root_buffer    = new PipelineState(sign_root_buffer);
+    pipe_table_buffer   = new PipelineState(sign_table_buffer);
+    pipe_root_constant  = new PipelineState(sign_root_constant);
 }
 
 IDXGIAdapter1* Renderer::findAdapter()
