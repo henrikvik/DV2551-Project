@@ -74,7 +74,6 @@ void Renderer::update()
 
 void Renderer::render()
 {
-
     frame();
     BreakOnFail(g.device->GetDeviceRemovedReason());
 
@@ -144,9 +143,12 @@ void Renderer::frame()
 
 	BreakOnFail(g.device->GetDeviceRemovedReason());
 
-	set_timer(*pipe_root_buffer, RB_TIMER);
-    set_timer(*pipe_table_buffer, TB_TIMER);
-	set_timer(*pipe_root_constant, RC_TIMER);
+    if (running)
+    {
+        set_timer(*pipe_root_buffer, RB_TIMER);
+        set_timer(*pipe_table_buffer, TB_TIMER);
+        set_timer(*pipe_root_constant, RC_TIMER);
+    }
 
 	timer->ResolveQuery(g.command_list);
 
