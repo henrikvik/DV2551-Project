@@ -24,14 +24,16 @@ Shader::Shader(UINT num)
 
 	shader_code << "struct Pixel"				   << std::endl;
 	shader_code << "{"							   << std::endl;
-	shader_code << "    float4 pos : SV_POSITION;" << std::endl;
+    shader_code << "    float4 pos : SV_POSITION;" << std::endl;
+    shader_code << "    float  mul : MULTIPLIED;" << std::endl;
 	shader_code << "};"							   << std::endl;
 
 	shader_code << "Pixel vs_main()"				 << std::endl;
 	shader_code << "{"								 << std::endl;
 	shader_code << "    Pixel p;"					 << std::endl;
-	shader_code << "    float v = (" << mul << ");" << std::endl;
-	shader_code << "    p.pos = float4(v, 0, 0, 1);" << std::endl;
+	shader_code << "    float v = (" << mul << ");"  << std::endl;
+    shader_code << "    p.mul = v;"                  << std::endl;
+    shader_code << "    p.pos = float4(0, 0, 0, 1);" << std::endl;
 	shader_code << "    return p;"					 << std::endl;
 	shader_code << "}"								 << std::endl;
 
